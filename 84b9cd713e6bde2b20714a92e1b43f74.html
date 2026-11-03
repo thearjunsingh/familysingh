@@ -1,0 +1,1331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" href="data:," />
+<title>Inner Circle Updates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#FBF8F2;
+    --surface:#FFFFFF;
+    --surface-2:#F4EFE6;
+    --ink:#232820;
+    --ink-soft:#4A4F45;
+    --muted:#75796D;
+    --line:#E5DDCF;
+    --line-strong:#D8CFC0;
+    --forest:#2E4B3F;
+    --forest-deep:#223A30;
+    --forest-soft:#E9EFEA;
+    --clay:#9C4A28;
+    --clay-soft:#F7E9E0;
+    --gold:#8A6D2B;
+    --gold-soft:#F5EDD8;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(35,40,32,.06), 0 8px 24px rgba(35,40,32,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#16140F;
+      --surface:#201D17;
+      --surface-2:#29251D;
+      --ink:#EFEAE0;
+      --ink-soft:#CFC8BA;
+      --muted:#A49B8A;
+      --line:#383228;
+      --line-strong:#4A4336;
+      --forest:#9DBFAE;
+      --forest-deep:#C4DCCF;
+      --forest-soft:#243229;
+      --clay:#E0A083;
+      --clay-soft:#37251E;
+      --gold:#D3B56A;
+      --gold-soft:#332E1E;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 28px rgba(0,0,0,.28);
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Karla",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:17px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--forest);text-underline-offset:3px}
+  button{font:inherit;cursor:pointer}
+  input{font:inherit}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px 56px}
+
+  /* Status notice — loading / loaded state for the sheet feed */
+  .notice{
+    margin:18px 0 0;
+    padding:11px 16px;
+    border:1px solid var(--line-strong);
+    border-radius:14px;
+    display:flex;gap:10px;align-items:flex-start;justify-content:center;
+    font-size:13.5px;line-height:1.45;color:var(--ink-soft);
+    background:var(--surface);
+    text-align:left;
+  }
+  .notice strong{color:var(--ink);font-weight:700}
+  .notice .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex:none;margin-top:5px}
+  @media (min-width:700px){
+    .notice{border-radius:999px;align-items:center;text-align:center}
+    .notice .dot{margin-top:0}
+  }
+
+  /* Intro — the letter, not a hero */
+  .intro{
+    max-width:760px;
+    padding:44px 0 8px;
+  }
+  .intro .kicker{
+    font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--forest);margin:0 0 14px;
+  }
+  .intro h1{
+    font-family:"Newsreader",Georgia,serif;
+    font-weight:500;font-size:clamp(42px,6vw,64px);line-height:1.02;letter-spacing:-.015em;
+    margin:0 0 18px;
+  }
+  .intro h1 em{font-style:italic;font-weight:400;color:var(--forest)}
+  .intro p.lede{
+    font-family:"Newsreader",Georgia,serif;
+    font-size:clamp(20px,2.6vw,23px);line-height:1.5;color:var(--ink-soft);
+    margin:0 0 20px;max-width:680px;
+  }
+  .intro p.small{color:var(--muted);font-size:15px;margin:0 0 6px}
+  .intro-meta{
+    display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:16px;
+    font-size:14px;color:var(--muted);
+  }
+  .intro-meta span{display:flex;align-items:center;gap:7px}
+  .intro-meta i{width:4px;height:4px;border-radius:50%;background:var(--muted);display:inline-block;font-style:normal}
+  .rule{height:1px;background:var(--line);margin:30px 0 0;border:0}
+
+  /* Controls */
+  .controls{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+    padding:18px 0 6px;
+  }
+  .search{
+    flex:1 1 260px;max-width:360px;position:relative;
+  }
+  .search input{
+    width:100%;padding:11px 14px 11px 40px;border:1px solid var(--line-strong);border-radius:999px;
+    background:var(--surface);color:var(--ink);outline:none;font-size:15.5px;
+  }
+  .search input:focus{border-color:var(--forest);box-shadow:0 0 0 3px var(--forest-soft)}
+  .search input::placeholder{color:var(--muted)}
+  .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--muted);pointer-events:none}
+  .view-toggle{
+    display:flex;border:1px solid var(--line-strong);border-radius:999px;overflow:hidden;background:var(--surface);flex:none;
+  }
+  .view-toggle button{
+    border:0;background:transparent;color:var(--ink-soft);padding:9px 16px;font-size:14.5px;font-weight:600;
+  }
+  .view-toggle button[aria-pressed="true"]{background:var(--forest);color:#fff}
+  @media (prefers-color-scheme: dark){
+    .view-toggle button[aria-pressed="true"]{background:var(--forest);color:#16140F}
+  }
+  .controls-actions{display:flex;gap:10px;align-items:center;flex:none;flex-wrap:wrap}
+  .refresh-btn{
+    border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-soft);
+    border-radius:999px;padding:9px 16px;font-size:14.5px;font-weight:600;
+  }
+  .refresh-btn:hover{border-color:var(--forest);color:var(--ink)}
+  .refresh-btn:disabled{opacity:.6;cursor:default}
+  .filters{display:flex;flex-wrap:wrap;gap:8px;padding:10px 0 4px}
+  .chip{
+    border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-soft);
+    border-radius:999px;padding:8px 14px;font-size:14.5px;font-weight:600;
+  }
+  .chip:hover{border-color:var(--forest);color:var(--ink)}
+  .chip[aria-pressed="true"]{background:var(--forest);color:#fff;border-color:var(--forest)}
+  @media (prefers-color-scheme: dark){
+    .chip[aria-pressed="true"]{color:#16140F}
+  }
+  .count{font-size:14px;color:var(--muted);margin:8px 0 0}
+
+  /* Layout */
+  .layout{
+    display:grid;grid-template-columns:304px minmax(0,1fr);gap:36px;align-items:start;
+    margin-top:22px;
+  }
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:24px}
+  }
+
+  /* Sidebar */
+  aside{position:sticky;top:20px;display:grid;gap:18px}
+  @media (max-width:860px){aside{position:static}}
+  .panel{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px;box-shadow:var(--shadow);
+  }
+  .panel h2{
+    font-family:"Newsreader",Georgia,serif;font-size:21px;font-weight:600;line-height:1.25;margin:0 0 4px;letter-spacing:-.01em;
+  }
+  .panel .sub{font-size:14px;color:var(--muted);margin:0 0 14px;line-height:1.5}
+  .panel h3{
+    font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--forest);font-weight:700;margin:18px 0 8px;
+  }
+  .panel h3:first-of-type{margin-top:0}
+  .dates{list-style:none;margin:0;padding:0;display:grid;gap:0}
+  .dates li{
+    display:flex;gap:13px;padding:11px 0;border-top:1px solid var(--line);align-items:flex-start;
+  }
+  .dates li:first-child{border-top:0;padding-top:2px}
+  .date-block{
+    flex:none;width:48px;text-align:center;border:1px solid var(--line-strong);border-radius:10px;
+    padding:6px 4px 7px;background:var(--surface-2);line-height:1.1;
+  }
+  .date-block b{display:block;font-size:18px;font-weight:700}
+  .date-block span{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:2px}
+  .dates .what{font-size:15px;line-height:1.45;font-weight:600}
+  .dates .where{font-size:13.5px;color:var(--muted);line-height:1.45;font-weight:400}
+  .dates .tagline{font-size:12.5px;color:var(--clay);font-weight:700;margin-top:3px}
+  .help-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+  .help-list li{display:block;position:relative;padding-left:16px;font-size:15px;line-height:1.5;color:var(--ink-soft)}
+  .help-list li::before{
+    content:"";position:absolute;left:0;top:8px;width:7px;height:7px;border-radius:50%;background:var(--clay);
+  }
+  .help-list li b{color:var(--ink)}
+  .quiet-note{
+    background:var(--forest-soft);border-radius:var(--radius);padding:18px 20px;
+    font-size:14.5px;line-height:1.6;color:var(--ink-soft);
+  }
+  .quiet-note strong{color:var(--ink)}
+  .quiet-note p{margin:0 0 8px}
+  .quiet-note p:last-child{margin:0}
+
+  /* Feed */
+  .feed{display:grid;gap:26px;min-width:0}
+  article.post{
+    background:var(--surface);border:1px solid var(--line);border-radius:18px;
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .post-inner{padding:30px 32px 26px}
+  @media (max-width:560px){.post-inner{padding:24px 20px 22px}}
+  .post-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+  .post-date{font-size:14px;font-weight:700;color:var(--ink-soft)}
+  .post-date .weekday{color:var(--muted);font-weight:500}
+  .pill{
+    font-size:12.5px;font-weight:700;letter-spacing:.02em;padding:4px 10px;border-radius:999px;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .pill.treatment{background:var(--forest-soft);color:var(--forest)}
+  .pill.findings{background:var(--gold-soft);color:var(--gold)}
+  .pill.appointments{background:#E9EEF2;color:#3D5A73}
+  .pill.family{background:var(--clay-soft);color:var(--clay)}
+  @media (prefers-color-scheme: dark){
+    .pill.appointments{background:#24333F;color:#9DBBD3}
+  }
+  .latest-flag{
+    display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--forest);
+    margin-bottom:10px;letter-spacing:.02em;
+  }
+  .latest-flag::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--forest)}
+  article.post h2{
+    font-family:"Newsreader",Georgia,serif;font-weight:500;letter-spacing:-.015em;
+    font-size:clamp(28px,3.6vw,36px);line-height:1.12;margin:0 0 12px;
+  }
+  article.post.featured h2{font-size:clamp(32px,4.4vw,42px)}
+  .post-body p{margin:0 0 14px;color:var(--ink-soft);font-size:17px;line-height:1.68}
+  .post-body p:last-child{margin-bottom:0}
+  .post-body p strong{color:var(--ink)}
+  .post-sections{
+    display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px;
+  }
+  @media (max-width:640px){.post-sections{grid-template-columns:1fr}}
+  .box{
+    border-radius:12px;padding:18px 18px 14px;background:var(--surface-2);border:1px solid var(--line);
+  }
+  .box.findings{background:var(--gold-soft);border-color:transparent}
+  @media (prefers-color-scheme: dark){.box.findings{border-color:var(--line)}}
+  .box h3{
+    font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin:0 0 10px;color:var(--ink);
+  }
+  .box-when{font-size:14.5px;line-height:1.55;color:var(--ink-soft);margin:0 0 10px}
+  .box-when b{color:var(--ink)}
+  .sidebar-empty{font-size:14px;line-height:1.55;color:var(--muted);margin:0;padding:4px 0 2px}
+  .dates .sidebar-empty{padding:0}
+  .box ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  .box li{font-size:15px;line-height:1.55;color:var(--ink-soft);padding-left:16px;position:relative}
+  .box li::before{content:"—";position:absolute;left:0;color:var(--muted)}
+  .box li b{color:var(--ink)}
+  .box .next-item{display:flex;gap:10px;align-items:baseline}
+  .box .next-item .d{flex:none;font-size:13px;font-weight:700;color:var(--forest);white-space:nowrap}
+  .help-box{
+    margin-top:16px;border:1px solid var(--line-strong);border-radius:12px;padding:18px;
+    background:var(--surface);
+  }
+  .help-box h3{font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin:0 0 10px;color:var(--clay)}
+  .help-box ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  .help-box li{font-size:15px;line-height:1.55;color:var(--ink-soft);padding-left:20px;position:relative}
+  .help-box li::before{content:"";position:absolute;left:2px;top:9px;width:6px;height:6px;border-radius:50%;background:var(--clay)}
+  .help-box li b{color:var(--ink)}
+  .post-foot{
+    margin-top:20px;padding-top:16px;border-top:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:space-between;align-items:center;
+    font-size:13.5px;color:var(--muted);
+  }
+  .post-foot .by{font-weight:600;color:var(--ink-soft)}
+
+  /* How the two entry types work */
+  .entry-types{
+    display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:26px 0 0;
+  }
+  @media (max-width:640px){.entry-types{grid-template-columns:1fr}}
+  .entry-type{
+    border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);
+    padding:18px 20px;box-shadow:var(--shadow);
+  }
+  .entry-type h2{
+    font-size:13px;letter-spacing:.11em;text-transform:uppercase;font-weight:700;
+    margin:0 0 8px;color:var(--forest);
+  }
+  .entry-type p{margin:0 0 8px;font-size:15px;line-height:1.6;color:var(--ink-soft)}
+  .entry-type p:last-child{margin-bottom:0}
+  .entry-type code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;
+    color:var(--ink);white-space:nowrap;
+  }
+  .entry-type.family h2{color:var(--clay)}
+  .entry-type.family{background:var(--clay-soft)}
+  @media (prefers-color-scheme: dark){.entry-type.family{background:var(--surface)}}
+  .source-badge{
+    font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:999px;
+    border:1px solid var(--line-strong);color:var(--ink-soft);background:var(--surface-2);
+  }
+  .source-badge.family-post{
+    background:var(--clay-soft);border-color:transparent;color:var(--clay);
+  }
+  @media (prefers-color-scheme: dark){.source-badge.family-post{border-color:var(--line)}}
+  article.post.family-post .post-body p{
+    font-family:"Newsreader",Georgia,serif;font-size:19px;line-height:1.6;color:var(--ink);
+    white-space:pre-line;
+  }
+  .verbatim-note{
+    margin-top:18px;padding:12px 16px;border:1px dashed var(--line-strong);border-radius:12px;
+    font-size:14px;line-height:1.55;color:var(--ink-soft);background:var(--surface);
+  }
+  .verbatim-note strong{color:var(--ink)}
+
+  /* Compact / timeline view */
+  .feed.compact{gap:0}
+  .feed.compact article.post{border-radius:0;border-left:0;border-right:0;box-shadow:none;border-top:0}
+  .feed.compact article.post:first-child{border-top:1px solid var(--line);border-radius:18px 18px 0 0}
+  .feed.compact article.post:last-child{border-radius:0 0 18px 18px;border-bottom:1px solid var(--line)}
+  .feed.compact .post-inner{padding:18px 24px;display:flex;gap:18px;align-items:baseline}
+  .feed.compact h2{font-size:21px;margin:0;line-height:1.3}
+  .feed.compact .post-body,.feed.compact .post-sections,.feed.compact .help-box,.feed.compact .verbatim-note,.feed.compact .latest-flag,.feed.compact .post-foot{display:none}
+  .feed.compact .post-top{margin:0;flex:none}
+  @media (max-width:560px){
+    .feed.compact .post-inner{flex-direction:column;gap:6px;padding:18px 20px}
+  }
+
+  .empty{
+    background:var(--surface);border:1px dashed var(--line-strong);border-radius:18px;
+    padding:36px 28px;text-align:center;color:var(--muted);
+  }
+  .empty h2{font-family:"Newsreader",Georgia,serif;color:var(--ink);font-size:24px;margin:0 0 8px;font-weight:500}
+  .empty p{margin:0 0 16px}
+  .empty button{
+    border:1px solid var(--forest);background:var(--forest);color:#fff;border-radius:999px;padding:9px 18px;font-weight:600;font-size:14.5px;
+  }
+
+  footer{
+    margin-top:44px;padding-top:22px;border-top:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between;
+    font-size:14px;color:var(--muted);line-height:1.55;
+  }
+  footer b{color:var(--ink-soft)}
+  :focus-visible{outline:2px solid var(--forest);outline-offset:2px;border-radius:4px}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto}
+    *{transition:none !important}
+  }
+  @media print{
+    .controls,.notice,.view-toggle{display:none !important}
+    body{background:#fff;color:#000}
+    article.post, .panel{box-shadow:none;break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="notice" id="sheetStatus" role="status"><span class="dot" aria-hidden="true"></span><span>Loading the latest updates…</span></p>
+
+  <header class="intro">
+    <p class="kicker">For the inner circle · Detailed updates</p>
+    <h1>Updates, stated <em>plainly.</em></h1>
+    <p class="lede">This page lists factual summaries of appointments, findings, and next steps, in date order. Summaries state only what is known at the time of writing, and note what is still outstanding.</p>
+    <p class="small">These entries are not written by Arjun or Erin, and do not express views or feelings on their behalf. Entries the family writes themselves are labelled separately and posted exactly as written — see below.</p>
+    <div class="intro-meta" id="introMeta" aria-label="About these updates">
+      <span>Loading updates…</span>
+    </div>
+
+    <div class="entry-types" aria-label="How entries are marked">
+      <section class="entry-type">
+        <h2>Factual summary</h2>
+        <p>The default entry type. A neutral summary of the facts provided: what happened, what was found, and what is scheduled next. No added sentiment, interpretation, or wording attributed to the family.</p>
+        <p>Sheet value: <code>Entry type: Factual summary</code></p>
+      </section>
+      <section class="entry-type family">
+        <h2>Family post — posted verbatim</h2>
+        <p>Written by the family themselves. Posted exactly as entered in the sheet — not edited, shortened, summarised, or reworded. These may be personal, because they are the family&rsquo;s own words.</p>
+        <p>Sheet value: <code>Entry type: Family post (verbatim)</code></p>
+      </section>
+    </div>
+    <p class="small" style="margin-top:14px">To add a family post, add a row to the sheet, set <strong>Entry type</strong> to <strong>Family post (verbatim)</strong>, and enter the full text in the <strong>What&rsquo;s happening</strong> column. Only that text is shown, unchanged. The <strong>Findings &amp; details</strong>, <strong>What&rsquo;s next</strong>, <strong>When</strong>, and <strong>How to help</strong> columns are ignored for verbatim rows. Every other row is treated as a factual summary.</p>
+    <hr class="rule" />
+  </header>
+
+  <div class="controls" aria-label="Find an update">
+    <label class="search">
+      <span class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Search updates</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="searchInput" type="search" placeholder="Search updates — try “scans” or “meals”…" autocomplete="off" />
+    </label>
+    <div class="controls-actions">
+      <div class="view-toggle" role="group" aria-label="Layout">
+        <button type="button" id="btnJournal" aria-pressed="true">Journal</button>
+        <button type="button" id="btnCompact" aria-pressed="false">Timeline</button>
+      </div>
+      <button type="button" class="refresh-btn" id="refreshBtn">Refresh</button>
+    </div>
+  </div>
+
+  <div class="filters" role="group" aria-label="Filter by entry type" id="filters"></div>
+  <p class="count" id="countLine" aria-live="polite"></p>
+
+  <div class="layout">
+    <aside aria-label="What's next and how to help">
+      <section class="panel" aria-labelledby="comingUpH">
+        <h2 id="comingUpH">What&rsquo;s next</h2>
+        <p class="sub">Dates from the shared list of upcoming appointments and check-ins.</p>
+        <ul class="dates" id="keyDates"></ul>
+        <p class="sub" style="margin:12px 0 0">If a date changes, this list is updated to show the revised date.</p>
+      </section>
+
+      <section class="panel" aria-labelledby="helpNowH">
+        <h2 id="helpNowH">Requests for help</h2>
+        <p class="sub">Requests listed in the most recent summaries.</p>
+        <ul class="help-list" id="helpNow"></ul>
+      </section>
+
+      <div class="quiet-note">
+        <p><strong>How to read this page.</strong></p>
+        <p>Unless an entry is labelled &ldquo;Family post — posted verbatim,&rdquo; it is a factual summary. It records what happened, what was found, and what is scheduled. It does not add views, feelings, or wording on the family&rsquo;s behalf.</p>
+        <p>Information marked as outstanding was outstanding at the time the entry was written. Later entries record later information.</p>
+      </div>
+
+      <div class="quiet-note">
+        <p><strong>Sharing news with friends or family?</strong></p>
+        <p>Please use the <a href="outer-circle-updates.html">Outer Circle Updates page</a> and share its link, rather than sharing this page. That page carries the version with less detail.</p>
+      </div>
+    </aside>
+
+    <main class="feed" id="feed" aria-label="Updates"></main>
+  </div>
+
+  <footer>
+    <span><b>Inner Circle Updates</b> — factual summaries, plus family posts posted verbatim, for the inner circle.</span>
+    <span id="footerStatus">Loading updates…</span>
+  </footer>
+
+</div>
+
+<script>
+/*
+  Live version: this page renders from one link-viewable Google Sheet,
+  "Care Updates - Inner and Outer Circles". One row of the "Inner updates"
+  tab = one post. The sheet is the database; editing a row there changes
+  this page on its next load. No content is baked into this file:
+  no update text ships in the page source, so editing a row in the
+  sheet, or revoking the sheet's link sharing, controls what this
+  page can show. If the sheet cannot be reached, the page says so
+  and offers a retry instead of showing a stale copy.
+
+  The live fetch tries three ways of reaching the sheet in parallel
+  and uses whichever answers first with the expected column headings:
+  the sheet's JSON feed and CSV feed over fetch, and the same JSON
+  feed loaded as a script (the feed calls a named response handler,
+  so no cross-origin fetch is involved). That third way matters:
+  in some browsers and in-app webviews a cross-origin fetch to
+  Google is blocked while a script load still answers, and with
+  fetch alone that left the page showing its unavailable state even
+  though the sheet was reachable. Each tab is retried a few times
+  before the page gives up, so a transient failure heals itself
+  instead of needing a manual retry. The Refresh button re-tries
+  the sheet without reloading the page.
+
+  The sheet ID appears in the page code, so anyone who reads the code can
+  open the workbook directly. That is the accepted trade-off of keeping
+  one link-viewable sheet: the whole workbook, including the Inner
+  updates tab, is reachable from either page's code. Search engines are
+  kept out with the noindex meta tag in the head.
+
+  Inner updates columns (matched by header label, not position):
+    Date, Title, What's happening, What's next, When,
+    Findings and details, How to help, Entry type.
+
+  Entry type controls how a row is shown, and it is never inferred from
+  wording:
+    "Factual summary"         — neutral summary; labelled as not written
+                                by the family; no sentiment is added.
+    "Family post (verbatim)"  — written by the family; the text in the
+                                "What's happening" column is shown exactly
+                                as entered, with no editing, shortening, or
+                                rewording, under a "Family post — posted
+                                verbatim" label. The Findings, What's next,
+                                When, and How to help columns are ignored
+                                for such rows. The Entry type value is
+                                matched after trimming and case-folding.
+                                A blank Entry type is treated as a factual
+                                summary.
+  All sheet text is rendered as plain text, never as HTML, so sheet
+  wording can never inject markup or change the page structure.
+
+  "Key dates" columns: Date, What, Who sees it, Notes. Only rows whose
+  "Who sees it" is blank, or mentions the inner circle, both circles,
+  or everyone, are shown here; outer-only rows are left out.
+*/
+var SHEET_ID = "1whRDPPvZzsoceBNHMGNX_gUKQVcpGnZ8vZoFUUtj6E4";
+var UPDATES = [];
+var KEY_DATES = [];
+var HELP_NOW = [];
+var FILTERS = ["All updates", "Factual summaries", "Family posts"];
+var activeFilter = "All updates";
+var query = "";
+var view = "journal";
+var loadState = "loading"; /* loading | ready | error */
+var keyDatesState = "loading"; /* loading | ready | error */
+var refreshing = false;
+var refreshFailed = false;
+var loadedAt = null;
+
+function normHeader(label){
+  return String(label || "").toLowerCase().replace(/[\u2018\u2019]/g, "'").trim();
+}
+function cellText(cell){
+  if (!cell) return "";
+  if (cell.f !== undefined && cell.f !== null && cell.f !== "") return String(cell.f);
+  if (cell.v !== undefined && cell.v !== null) return String(cell.v);
+  return "";
+}
+function cellDate(cell){
+  if (!cell) return null;
+  var v = cell.v;
+  if (typeof v === "string"){
+    var m = /Date\((\d+),\s*(\d+),\s*(\d+)/.exec(v);
+    if (m) return new Date(+m[1], +m[2], +m[3]);
+  }
+  var s = (cell.f !== undefined && cell.f !== null && cell.f !== "") ? String(cell.f) : (v !== undefined && v !== null ? String(v) : "");
+  s = s.trim();
+  if (!s) return null;
+  var iso = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s);
+  if (iso) return new Date(+iso[1], +iso[2] - 1, +iso[3]);
+  var us = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(s);
+  if (us) return new Date(+us[3], +us[1] - 1, +us[2]);
+  var d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+function formatLongDate(d){
+  return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+function formatWeekday(d){
+  return d.toLocaleDateString("en-US", { weekday: "long" });
+}
+function splitParagraphs(text){
+  return String(text || "").split(/\r?\n\s*\r?\n/).map(function(p){ return p.trim(); }).filter(function(p){ return p.length > 0; });
+}
+function splitLines(text){
+  return String(text || "").split(/\r?\n/).map(function(line){
+    return line.replace(/^\s*[-*•]\s+/, "").trim();
+  }).filter(function(line){ return line.length > 0; });
+}
+function gvizUrl(sheet, format){
+  return "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:" + format + "&headers=1&sheet=" + encodeURIComponent(sheet);
+}
+var TRANSPORT_TIMEOUT = 10000;
+function newController(){
+  return window.AbortController ? new AbortController() : null;
+}
+function fetchTextWithTimeout(url, controller){
+  var timer = null;
+  if (controller){
+    timer = setTimeout(function(){ controller.abort(); }, TRANSPORT_TIMEOUT);
+  }
+  var opts = { cache: "no-store" };
+  if (controller) opts.signal = controller.signal;
+  return fetch(url, opts).then(function(res){
+    if (timer) clearTimeout(timer);
+    if (!res.ok) throw new Error("Sheet request failed (" + res.status + ")");
+    return res.text();
+  }, function(err){
+    if (timer) clearTimeout(timer);
+    throw err;
+  });
+}
+/* Script-tag transport: the gviz feed answers a script load by calling
+   the response handler named in tqx, so the table arrives without a
+   cross-origin fetch at all. The handler only receives the parsed
+   table object; headings are still validated before anything is used,
+   and every value is rendered as plain text, never as HTML. */
+var scriptCbSeq = 0;
+function scriptTransport(sheet){
+  return new Promise(function(resolve, reject){
+    var name = "__sheetCb" + (++scriptCbSeq) + "_" + Date.now();
+    var script = document.createElement("script");
+    var finished = false;
+    var timer = setTimeout(function(){ cleanup(); reject(new Error("Sheet request timed out")); }, TRANSPORT_TIMEOUT);
+    function cleanup(){
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      if (script.parentNode) script.parentNode.removeChild(script);
+      /* Leave a no-op behind so a late response is swallowed instead
+         of throwing for a handler that no longer exists. */
+      window[name] = function(){};
+    }
+    window[name] = function(data){
+      if (finished) return;
+      cleanup();
+      if (!data || data.status !== "ok"){
+        reject(new Error("Sheet request failed"));
+        return;
+      }
+      resolve(data.table || { cols: [], rows: [] });
+    };
+    script.onerror = function(){ cleanup(); reject(new Error("Sheet request failed")); };
+    script.src = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json;responseHandler:" + name + "&headers=1&sheet=" + encodeURIComponent(sheet);
+    document.head.appendChild(script);
+  });
+}
+function parseGvizJson(text){
+  var start = text.indexOf("{");
+  var end = text.lastIndexOf("}");
+  if (start < 0 || end < 0) throw new Error("Unexpected sheet response");
+  var data = JSON.parse(text.slice(start, end + 1));
+  if (data.status !== "ok"){
+    var detail = data.errors && data.errors[0] ? (data.errors[0].detailed_message || data.errors[0].message) : "";
+    throw new Error(detail || "Sheet request failed");
+  }
+  return data.table || { cols: [], rows: [] };
+}
+/* Minimal CSV parser: quoted fields may contain commas, quotes (""),
+   and line breaks, as the sheet's own text does. */
+function parseCsv(text){
+  var rows = [], row = [], field = "", inQuotes = false;
+  var s = String(text || "").replace(/^\uFEFF/, "");
+  for (var i = 0; i < s.length; i++){
+    var ch = s[i];
+    if (inQuotes){
+      if (ch === '"'){
+        if (s[i + 1] === '"'){ field += '"'; i++; }
+        else inQuotes = false;
+      } else field += ch;
+    } else if (ch === '"') inQuotes = true;
+    else if (ch === ","){ row.push(field); field = ""; }
+    else if (ch === "\r"){
+      if (s[i + 1] === "\n") i++;
+      row.push(field); field = ""; rows.push(row); row = [];
+    }
+    else if (ch === "\n"){ row.push(field); field = ""; rows.push(row); row = []; }
+    else field += ch;
+  }
+  if (field !== "" || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(function(r){ return r.some(function(c){ return String(c).trim() !== ""; }); });
+}
+function csvTable(text){
+  var rows = parseCsv(text);
+  if (!rows.length) throw new Error("Unexpected sheet response");
+  var cols = rows[0].map(function(h){ return { label: h }; });
+  return { cols: cols, rows: rows.slice(1).map(function(r){
+    return { c: r.map(function(v){ return { v: v }; }) };
+  }) };
+}
+/* Column kinds shared by parsing and validation, so a live response
+   is only trusted when its headings match the tab it claims to be.
+   The gviz feed falls back to the first sheet when a tab name is
+   missing, so this check is what keeps another tab's rows off the page. */
+var UPDATES_KINDS = [
+  ["date", function(l){ return l === "date"; }],
+  ["title", function(l){ return l.indexOf("title") !== -1; }],
+  ["body", function(l){ return l.indexOf("happening") !== -1; }],
+  ["next", function(l){ return l.indexOf("next") !== -1; }],
+  ["when", function(l){ return l.indexOf("when") !== -1; }],
+  ["findings", function(l){ return l.indexOf("findings") !== -1; }],
+  ["help", function(l){ return l.indexOf("help") !== -1; }],
+  ["entry", function(l){ return l.indexOf("entry") !== -1; }]
+];
+var KEYDATES_KINDS = [
+  ["date", function(l){ return l === "date"; }],
+  ["what", function(l){ return l === "what"; }],
+  ["audience", function(l){ return l.indexOf("who") !== -1 || l.indexOf("sees") !== -1; }],
+  ["notes", function(l){ return l.indexOf("notes") !== -1; }]
+];
+function tableHasKinds(table, kinds){
+  var map = columnMap(table, kinds);
+  return kinds.every(function(kind){ return map[kind[0]] !== undefined && map[kind[0]] !== null; });
+}
+/* Race the three transports in parallel and take the first table
+   whose headings match the requested tab. A response whose headings
+   do not match is rejected, so the next transport is tried, and the
+   page shows its unavailable state only if every transport fails.
+   The gviz feed falls back to the first sheet when a tab name is
+   missing, so this check is what keeps another tab's rows off the
+   page. When one transport wins, the in-flight fetches are aborted. */
+function fetchTable(sheet, kinds){
+  return new Promise(function(resolve, reject){
+    var pending = 3, lastErr = null, settled = false;
+    var controllers = [];
+    function fail(err){
+      if (settled) return;
+      lastErr = err;
+      if (--pending === 0) reject(lastErr || new Error("Sheet request failed"));
+    }
+    function succeed(table){
+      if (settled) return;
+      if (!tableHasKinds(table, kinds)){ fail(new Error("Unexpected sheet columns")); return; }
+      settled = true;
+      controllers.forEach(function(c){ try { c.abort(); } catch (e) {} });
+      resolve(table);
+    }
+    var cJson = newController();
+    if (cJson) controllers.push(cJson);
+    fetchTextWithTimeout(gvizUrl(sheet, "json"), cJson).then(parseGvizJson).then(succeed, fail);
+    var cCsv = newController();
+    if (cCsv) controllers.push(cCsv);
+    fetchTextWithTimeout(gvizUrl(sheet, "csv"), cCsv).then(csvTable).then(succeed, fail);
+    scriptTransport(sheet).then(succeed, fail);
+  });
+}
+/* A failed tab is retried on its own, with a short pause between
+   attempts, so a transient failure does not blank the page and the
+   updates tab is not held up by a slow dates tab, or the reverse. */
+function fetchTabWithRetries(sheet, kinds, attemptsLeft){
+  return fetchTable(sheet, kinds).catch(function(err){
+    if (attemptsLeft > 1){
+      return new Promise(function(res){ setTimeout(res, 1000); }).then(function(){
+        return fetchTabWithRetries(sheet, kinds, attemptsLeft - 1);
+      });
+    }
+    throw err;
+  });
+}
+function columnMap(table, kinds){
+  var map = {};
+  (table.cols || []).forEach(function(col, i){
+    var label = normHeader(col.label || "");
+    kinds.forEach(function(kind){
+      if (!(kind[0] in map) && kind[1](label)) map[kind[0]] = i;
+    });
+  });
+  return map;
+}
+function getText(cells, map, key){
+  var i = map[key];
+  if (i === undefined || i === null) return "";
+  return cellText(cells[i]).trim();
+}
+function getDate(cells, map, key){
+  var i = map[key];
+  if (i === undefined || i === null) return null;
+  return cellDate(cells[i]);
+}
+function getRawDateText(cells, map, key){
+  var i = map[key];
+  if (i === undefined || i === null) return "";
+  return cellText(cells[i]).trim();
+}
+function parseUpdates(table){
+  var map = columnMap(table, UPDATES_KINDS);
+  var out = [];
+  (table.rows || []).forEach(function(row, idx){
+    var cells = row.c || [];
+    var title = getText(cells, map, "title");
+    var bodyText = getText(cells, map, "body");
+    var nextText = getText(cells, map, "next");
+    var whenText = getText(cells, map, "when");
+    var findingsText = getText(cells, map, "findings");
+    var helpText = getText(cells, map, "help");
+    var entryType = getText(cells, map, "entry");
+    var dateObj = getDate(cells, map, "date");
+    var rawDate = getRawDateText(cells, map, "date");
+    if (!title && !bodyText && !nextText && !whenText && !findingsText && !helpText && !entryType && !dateObj && !rawDate) return;
+    var paras = splitParagraphs(bodyText);
+    out.push({
+      dateObj: dateObj,
+      displayDate: dateObj ? formatLongDate(dateObj) : (rawDate || "Date not listed"),
+      weekday: dateObj ? formatWeekday(dateObj) : "",
+      title: title || "Update",
+      entryType: entryType || "Factual summary",
+      body: paras.length ? paras : (bodyText ? [bodyText] : []),
+      bodyText: bodyText,
+      findings: splitLines(findingsText),
+      nextSteps: splitLines(nextText),
+      whenText: whenText,
+      help: splitLines(helpText),
+      sortKey: dateObj ? dateObj.getTime() : -Infinity,
+      sheetOrder: idx
+    });
+  });
+  out.sort(function(a, b){
+    if (b.sortKey !== a.sortKey) return b.sortKey - a.sortKey;
+    return a.sheetOrder - b.sheetOrder;
+  });
+  return out;
+}
+function visibleToInner(audience){
+  var a = String(audience || "").trim().toLowerCase();
+  if (!a) return true;
+  if (a.indexOf("inner") !== -1) return true;
+  if (a.indexOf("both") !== -1) return true;
+  if (a.indexOf("all") !== -1) return true;
+  if (a.indexOf("everyone") !== -1) return true;
+  return false;
+}
+function parseKeyDates(table){
+  var map = columnMap(table, KEYDATES_KINDS);
+  var out = [];
+  (table.rows || []).forEach(function(row, idx){
+    var cells = row.c || [];
+    var what = getText(cells, map, "what");
+    var notes = getText(cells, map, "notes");
+    var audience = getText(cells, map, "audience");
+    var dateObj = getDate(cells, map, "date");
+    var rawDate = getRawDateText(cells, map, "date");
+    if (!what && !notes && !dateObj && !rawDate) return;
+    if (!visibleToInner(audience)) return;
+    out.push({
+      dateObj: dateObj,
+      month: dateObj ? dateObj.toLocaleDateString("en-US", { month: "short" }) : "",
+      day: dateObj ? String(dateObj.getDate()) : "",
+      rawDate: rawDate,
+      what: what || "Date",
+      notes: notes,
+      sortKey: dateObj ? dateObj.getTime() : Infinity,
+      sheetOrder: idx
+    });
+  });
+  out.sort(function(a, b){
+    if (a.sortKey !== b.sortKey) return a.sortKey - b.sortKey;
+    return a.sheetOrder - b.sheetOrder;
+  });
+  return out;
+}
+function deriveHelpNow(){
+  var seen = {};
+  var out = [];
+  UPDATES.forEach(function(u){
+    if (isVerbatimEntry(u)) return;
+    u.help.forEach(function(h){
+      var k = h.toLowerCase();
+      if (!seen[k]){ seen[k] = true; out.push(h); }
+    });
+  });
+  HELP_NOW = out.slice(0, 4);
+}
+
+/* A row is verbatim only when Entry type says so (trimmed, case-insensitive).
+   Never infer verbatim status from wording. */
+function isVerbatimEntry(u){
+  return String(u.entryType || "").trim().toLowerCase() === "family post (verbatim)";
+}
+
+function renderFilters(){
+  var wrap = document.getElementById("filters");
+  wrap.innerHTML = "";
+  FILTERS.forEach(function(f){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip";
+    b.textContent = f;
+    b.setAttribute("aria-pressed", f === activeFilter ? "true" : "false");
+    b.addEventListener("click", function(){
+      activeFilter = f;
+      renderFilters();
+      renderFeed();
+    });
+    wrap.appendChild(b);
+  });
+}
+
+function matches(u){
+  if (activeFilter === "Factual summaries" && isVerbatimEntry(u)) return false;
+  if (activeFilter === "Family posts" && !isVerbatimEntry(u)) return false;
+  if (!query) return true;
+  var hay = (u.title + " " + u.entryType + " " + u.body.join(" ") + " " + u.findings.join(" ") + " " + u.help.join(" ") + " " + u.nextSteps.join(" ") + " " + u.whenText).toLowerCase();
+  return hay.indexOf(query) !== -1;
+}
+
+function renderStatus(){
+  var status = document.getElementById("sheetStatus");
+  var statusText = status.lastElementChild;
+  var meta = document.getElementById("introMeta");
+  var footerStatus = document.getElementById("footerStatus");
+  meta.innerHTML = "";
+  function metaSpan(text){
+    var s = document.createElement("span");
+    var dot = document.createElement("i");
+    s.appendChild(dot);
+    s.appendChild(document.createTextNode(text));
+    meta.appendChild(s);
+  }
+  if (loadState === "loading"){
+    statusText.textContent = "Loading the latest updates…";
+    var loading = document.createElement("span");
+    loading.textContent = "Loading updates…";
+    meta.appendChild(loading);
+    footerStatus.textContent = "Loading updates…";
+    return;
+  }
+  if (refreshing){
+    statusText.textContent = "Checking the shared sheet for the latest updates…";
+    /* Fall through below, so the counts shown are for the copy
+       currently on screen while the sheet is checked. */
+  }
+  if (loadState === "error"){
+    statusText.textContent = "The updates couldn’t be loaded. Your connection may be down, or the shared sheet may not be reachable. Try again below.";
+    var unavailable = document.createElement("span");
+    unavailable.textContent = "Updates unavailable";
+    meta.appendChild(unavailable);
+    footerStatus.textContent = "Updates couldn’t be loaded";
+    return;
+  }
+  var familyCount = UPDATES.filter(isVerbatimEntry).length;
+  var latest = UPDATES.length ? UPDATES[0].displayDate : "";
+  if (UPDATES.length === 0){
+    statusText.textContent = "No updates have been added yet. New rows added to the shared sheet will appear here.";
+    var none = document.createElement("span");
+    none.textContent = "No updates yet";
+    meta.appendChild(none);
+    footerStatus.textContent = "No updates yet";
+    return;
+  }
+  if (refreshing){
+    /* Status text was set above; the counts below describe the copy on screen. */
+  } else if (refreshFailed){
+    statusText.textContent = "The sheet couldn’t be reached just now, so the updates shown are the last ones loaded. Use Refresh to try again.";
+  } else {
+    statusText.textContent = "Updates load from the shared sheet each time this page is opened" + (loadedAt ? ", last loaded " + loadedAt.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) + "." : ".");
+  }
+  metaSpan(UPDATES.length === 1 ? "1 update" : UPDATES.length + " updates");
+  if (familyCount) metaSpan(familyCount === 1 ? "1 family post" : familyCount + " family posts");
+  if (latest) metaSpan("Latest: " + latest);
+  metaSpan("Newest first");
+  footerStatus.textContent = "Latest update " + latest;
+}
+
+function renderFeed(){
+  var feed = document.getElementById("feed");
+  var count = document.getElementById("countLine");
+  feed.className = "feed" + (view === "compact" ? " compact" : "");
+  feed.innerHTML = "";
+
+  if (loadState === "loading"){
+    count.textContent = "Loading updates…";
+    var loading = document.createElement("div");
+    loading.className = "empty";
+    var lh = document.createElement("h2");
+    lh.textContent = "Loading updates…";
+    var lp = document.createElement("p");
+    lp.textContent = "Reading the latest rows from the shared sheet.";
+    loading.appendChild(lh);
+    loading.appendChild(lp);
+    feed.appendChild(loading);
+    return;
+  }
+
+  if (loadState === "error"){
+    count.textContent = "";
+    var err = document.createElement("div");
+    err.className = "empty";
+    var eh = document.createElement("h2");
+    eh.textContent = "Updates couldn’t be loaded.";
+    var ep = document.createElement("p");
+    ep.textContent = "The shared sheet couldn’t be reached. Check your connection and try again — nothing has been removed.";
+    var retry = document.createElement("button");
+    retry.type = "button";
+    retry.textContent = "Try again";
+    retry.addEventListener("click", function(){ loadAll(true); });
+    err.appendChild(eh);
+    err.appendChild(ep);
+    err.appendChild(retry);
+    feed.appendChild(err);
+    return;
+  }
+
+  var list = UPDATES.filter(matches);
+  if (UPDATES.length === 0){
+    count.textContent = "No updates yet.";
+    var empty = document.createElement("div");
+    empty.className = "empty";
+    var nh = document.createElement("h2");
+    nh.textContent = "No updates yet.";
+    var np = document.createElement("p");
+    np.textContent = "When a new row is added to the shared sheet, it will appear here as a post.";
+    empty.appendChild(nh);
+    empty.appendChild(np);
+    feed.appendChild(empty);
+    return;
+  }
+  count.textContent = list.length === UPDATES.length
+    ? "Showing all " + UPDATES.length + (UPDATES.length === 1 ? " update" : " updates") + ", newest first."
+    : "Showing " + list.length + " of " + UPDATES.length + " updates" + (query ? " matching \u201C" + query + "\u201D" : "") + ".";
+
+  if (!list.length){
+    var noMatch = document.createElement("div");
+    noMatch.className = "empty";
+    var mh = document.createElement("h2");
+    mh.textContent = "No updates match that search.";
+    var mp = document.createElement("p");
+    mp.textContent = "Try a different word, or clear the filter to see the full journal.";
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = "Show all updates";
+    btn.addEventListener("click", function(){
+      activeFilter = "All updates";
+      query = "";
+      document.getElementById("searchInput").value = "";
+      renderFilters();
+      renderFeed();
+    });
+    noMatch.appendChild(mh);
+    noMatch.appendChild(mp);
+    noMatch.appendChild(btn);
+    feed.appendChild(noMatch);
+    return;
+  }
+
+  list.forEach(function(u, idx){
+    var isLatest = (idx === 0 && activeFilter === "All updates" && !query);
+    var isVerbatim = isVerbatimEntry(u);
+    var art = document.createElement("article");
+    art.className = "post" + (isLatest ? " featured" : "") + (isVerbatim ? " family-post" : "");
+    art.setAttribute("data-entry-type", isVerbatim ? "Family post (verbatim)" : "Factual summary");
+
+    var inner = document.createElement("div");
+    inner.className = "post-inner";
+
+    var top = document.createElement("div");
+    top.className = "post-top";
+    var dateEl = document.createElement("span");
+    dateEl.className = "post-date";
+    dateEl.appendChild(document.createTextNode(u.displayDate));
+    if (u.weekday){
+      var wd = document.createElement("span");
+      wd.className = "weekday";
+      wd.textContent = " · " + u.weekday;
+      dateEl.appendChild(wd);
+    }
+    var source = document.createElement("span");
+    source.className = "source-badge" + (isVerbatim ? " family-post" : "");
+    source.textContent = isVerbatim ? "Family post · Posted verbatim" : "Factual summary · Not written by the family";
+    top.appendChild(dateEl);
+    top.appendChild(source);
+    inner.appendChild(top);
+
+    if (isLatest){
+      var flag = document.createElement("p");
+      flag.className = "latest-flag";
+      flag.textContent = "Latest update";
+      inner.appendChild(flag);
+    }
+
+    var h = document.createElement("h2");
+    h.textContent = u.title;
+    inner.appendChild(h);
+
+    var body = document.createElement("div");
+    body.className = "post-body";
+    u.body.forEach(function(p){
+      var pe = document.createElement("p");
+      pe.textContent = p;
+      body.appendChild(pe);
+    });
+    inner.appendChild(body);
+
+    if (isVerbatim){
+      /* Family posts are shown as a single block of text: no findings,
+         next-steps, or help boxes are derived from them. The text above
+         is shown exactly as entered. */
+      var note = document.createElement("p");
+      note.className = "verbatim-note";
+      var strong = document.createElement("strong");
+      strong.textContent = "Posted verbatim.";
+      note.appendChild(strong);
+      note.appendChild(document.createTextNode(" The text above is shown exactly as entered in the sheet for a row marked \u201CFamily post (verbatim).\u201D It has not been edited, shortened, or summarised."));
+      inner.appendChild(note);
+    } else {
+      var hasSections = u.findings.length > 0 || u.nextSteps.length > 0 || !!u.whenText;
+      if (hasSections){
+        var sections = document.createElement("div");
+        sections.className = "post-sections";
+
+        if (u.findings.length){
+          var fBox = document.createElement("section");
+          fBox.className = "box findings";
+          fBox.setAttribute("aria-label", "Findings and details");
+          var fh = document.createElement("h3");
+          fh.textContent = "Findings & details";
+          fBox.appendChild(fh);
+          var ful = document.createElement("ul");
+          u.findings.forEach(function(f){
+            var li = document.createElement("li");
+            li.textContent = f;
+            ful.appendChild(li);
+          });
+          fBox.appendChild(ful);
+          sections.appendChild(fBox);
+        }
+
+        if (u.nextSteps.length || u.whenText){
+          var nBox = document.createElement("section");
+          nBox.className = "box";
+          nBox.setAttribute("aria-label", "What's next");
+          var nh = document.createElement("h3");
+          nh.textContent = "What\u2019s next, and when";
+          nBox.appendChild(nh);
+          if (u.whenText){
+            var whenP = document.createElement("p");
+            whenP.className = "box-when";
+            whenP.textContent = u.whenText;
+            nBox.appendChild(whenP);
+          }
+          if (u.nextSteps.length){
+            var nul = document.createElement("ul");
+            u.nextSteps.forEach(function(n){
+              var li = document.createElement("li");
+              li.textContent = n;
+              nul.appendChild(li);
+            });
+            nBox.appendChild(nul);
+          }
+          sections.appendChild(nBox);
+        }
+
+        inner.appendChild(sections);
+      }
+
+      if (u.help.length){
+        var helpBox = document.createElement("section");
+        helpBox.className = "help-box";
+        helpBox.setAttribute("aria-label", "How to help");
+        var hh = document.createElement("h3");
+        hh.textContent = "Requests for help";
+        helpBox.appendChild(hh);
+        var hul = document.createElement("ul");
+        u.help.forEach(function(item){
+          var li = document.createElement("li");
+          li.textContent = item;
+          hul.appendChild(li);
+        });
+        helpBox.appendChild(hul);
+        inner.appendChild(helpBox);
+      }
+    }
+
+    var foot = document.createElement("div");
+    foot.className = "post-foot";
+    var by = document.createElement("span");
+    by.className = "by";
+    by.textContent = isVerbatim ? "Family post · Posted verbatim · Wording unchanged" : "Factual summary · Not written by the family";
+    var scope = document.createElement("span");
+    scope.textContent = "For the inner circle only";
+    foot.appendChild(by);
+    foot.appendChild(scope);
+    inner.appendChild(foot);
+
+    art.appendChild(inner);
+    feed.appendChild(art);
+  });
+}
+
+function renderKeyDates(){
+  var ul = document.getElementById("keyDates");
+  ul.innerHTML = "";
+  if (keyDatesState === "loading"){
+    var li = document.createElement("li");
+    var p = document.createElement("p");
+    p.className = "sidebar-empty";
+    p.textContent = "Loading dates…";
+    li.appendChild(p);
+    ul.appendChild(li);
+    return;
+  }
+  if (keyDatesState === "error"){
+    var eli = document.createElement("li");
+    var ep = document.createElement("p");
+    ep.className = "sidebar-empty";
+    ep.textContent = "Dates couldn’t be loaded.";
+    eli.appendChild(ep);
+    ul.appendChild(eli);
+    return;
+  }
+  if (!KEY_DATES.length){
+    var nli = document.createElement("li");
+    var np = document.createElement("p");
+    np.className = "sidebar-empty";
+    np.textContent = "No dates listed yet.";
+    nli.appendChild(np);
+    ul.appendChild(nli);
+    return;
+  }
+  KEY_DATES.forEach(function(d){
+    var li = document.createElement("li");
+    var block = document.createElement("div");
+    block.className = "date-block";
+    block.setAttribute("aria-hidden", "true");
+    var mSpan = document.createElement("span");
+    mSpan.textContent = d.month || "—";
+    var dB = document.createElement("b");
+    dB.textContent = d.day || "—";
+    block.appendChild(mSpan);
+    block.appendChild(dB);
+    var info = document.createElement("div");
+    var what = document.createElement("div");
+    what.className = "what";
+    what.textContent = d.what;
+    info.appendChild(what);
+    var whereText = d.notes;
+    if (!d.dateObj && d.rawDate) whereText = whereText ? d.rawDate + " · " + whereText : d.rawDate;
+    if (whereText){
+      var where = document.createElement("div");
+      where.className = "where";
+      where.textContent = whereText;
+      info.appendChild(where);
+    }
+    li.appendChild(block);
+    li.appendChild(info);
+    ul.appendChild(li);
+  });
+}
+
+function renderHelpNow(){
+  var ul = document.getElementById("helpNow");
+  ul.innerHTML = "";
+  if (loadState === "loading"){
+    var li = document.createElement("li");
+    li.textContent = "Loading…";
+    ul.appendChild(li);
+    return;
+  }
+  if (loadState === "error"){
+    var eli = document.createElement("li");
+    eli.textContent = "Requests couldn’t be loaded.";
+    ul.appendChild(eli);
+    return;
+  }
+  if (!HELP_NOW.length){
+    var nli = document.createElement("li");
+    nli.textContent = "No requests listed in recent updates.";
+    ul.appendChild(nli);
+    return;
+  }
+  HELP_NOW.forEach(function(h){
+    var item = document.createElement("li");
+    item.textContent = h;
+    ul.appendChild(item);
+  });
+}
+
+function updateRefreshBtn(){
+  var btn = document.getElementById("refreshBtn");
+  if (!btn) return;
+  btn.disabled = refreshing;
+  btn.textContent = refreshing ? "Refreshing…" : "Refresh";
+}
+
+function loadAll(manual){
+  if (refreshing) return;
+  refreshing = true;
+  refreshFailed = false;
+  if (!manual && !UPDATES.length) loadState = "loading";
+  updateRefreshBtn();
+  renderStatus();
+  renderFilters();
+  renderFeed();
+  renderKeyDates();
+  renderHelpNow();
+  var updatesDone = fetchTabWithRetries("Inner updates", UPDATES_KINDS, 3).then(function(table){
+    UPDATES = parseUpdates(table);
+    deriveHelpNow();
+    loadState = "ready";
+    loadedAt = new Date();
+    renderFilters();
+    renderFeed();
+    renderHelpNow();
+    renderStatus();
+  }, function(){
+    if (UPDATES.length){
+      /* A refresh failed after a live load: keep the copy
+         already on screen (in memory only, never baked into the
+         page) and flag it, instead of blanking the page. */
+      loadState = "ready";
+      refreshFailed = true;
+    } else {
+      UPDATES = [];
+      HELP_NOW = [];
+      loadState = "error";
+    }
+    renderFeed();
+    renderHelpNow();
+    renderStatus();
+  });
+  var datesDone = fetchTabWithRetries("Key dates", KEYDATES_KINDS, 3).then(function(table){
+    KEY_DATES = parseKeyDates(table);
+    keyDatesState = "ready";
+    renderKeyDates();
+  }, function(){
+    if (!KEY_DATES.length) keyDatesState = "error";
+    renderKeyDates();
+  });
+  Promise.allSettled([updatesDone, datesDone]).then(function(){
+    refreshing = false;
+    updateRefreshBtn();
+    renderStatus();
+  });
+}
+
+document.getElementById("searchInput").addEventListener("input", function(e){
+  query = e.target.value.trim().toLowerCase();
+  renderFeed();
+});
+
+document.getElementById("btnJournal").addEventListener("click", function(){
+  view = "journal";
+  document.getElementById("btnJournal").setAttribute("aria-pressed", "true");
+  document.getElementById("btnCompact").setAttribute("aria-pressed", "false");
+  renderFeed();
+});
+document.getElementById("btnCompact").addEventListener("click", function(){
+  view = "compact";
+  document.getElementById("btnCompact").setAttribute("aria-pressed", "true");
+  document.getElementById("btnJournal").setAttribute("aria-pressed", "false");
+  renderFeed();
+});
+
+document.getElementById("refreshBtn").addEventListener("click", function(){ loadAll(true); });
+
+loadAll(false);
+</script>
+</body>
+</html>
