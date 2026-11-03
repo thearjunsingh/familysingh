@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="General, factual updates about Erin, in plain terms. No medical detail." />
+<link rel="icon" href="data:," />
+<title>Family Updates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#ffffff;
+    --card:#ffffff;
+    --surface:#f4f6f2;
+    --callout:#eef2ec;
+    --ink:#232a22;
+    --muted:#5d685e;
+    --faint:#8a948a;
+    --line:#dde3da;
+    --accent:#2e4d39;
+    --accent-ink:#2e4d39;
+    --clay:#b35a33;
+    --pill:#eef2ec;
+    --shadow:0 1px 2px rgba(28,38,28,.06), 0 8px 24px rgba(28,38,28,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#12160f;
+      --card:#1a201a;
+      --surface:#1a201a;
+      --callout:#20291f;
+      --ink:#eceee8;
+      --muted:#aab5a9;
+      --faint:#8b968b;
+      --line:#2c362c;
+      --accent:#a8cdb0;
+      --accent-ink:#c4dfc9;
+      --clay:#e08a5f;
+      --pill:#222b22;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 28px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:17px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent-ink)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 72px}
+  @media (max-width:640px){ .wrap{padding:0 18px 56px} body{font-size:16.5px} }
+
+  /* Intro */
+  .intro{max-width:760px;padding:52px 0 8px}
+  @media (max-width:640px){ .intro{padding-top:36px} }
+  h1{
+    font-family:"Newsreader",Georgia,"Times New Roman",serif;
+    font-weight:500;
+    font-size:clamp(38px,5.4vw,56px);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0 0 18px;
+  }
+  h1 em{font-style:italic;font-weight:400}
+  .lede{
+    font-family:"Newsreader",Georgia,serif;
+    font-size:clamp(20px,2.6vw,23px);
+    line-height:1.5;
+    color:var(--muted);
+    margin:0 0 14px;
+    max-width:680px;
+  }
+  .lede strong{color:var(--ink);font-weight:600}
+  .disclosure{
+    border:1px solid var(--line);
+    background:var(--callout);
+    border-radius:14px;
+    padding:20px 22px;
+    margin:22px 0 0;
+    max-width:760px;
+  }
+  .disclosure h2{
+    font-family:"Newsreader",Georgia,serif;
+    font-weight:600;font-size:21px;line-height:1.25;margin:0 0 8px;
+  }
+  .disclosure p{font-size:15.5px;line-height:1.6;color:var(--muted);margin:0 0 10px}
+  .disclosure p:last-child{margin-bottom:0}
+  .disclosure strong{color:var(--ink)}
+
+  /* Controls */
+  .kind-filter{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+    margin:32px 0 0;font-size:14px;color:var(--muted);
+  }
+  .kind-filter .kind-label-inline{font-weight:650;color:var(--ink);margin-right:2px}
+  #kindChips{display:flex;flex-wrap:wrap;gap:8px}
+  .controls{
+    display:flex;flex-wrap:wrap;gap:10px 12px;align-items:center;justify-content:space-between;
+    margin:16px 0 8px;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);
+    font:inherit;font-size:14px;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer;
+  }
+  .chip:hover{border-color:var(--accent)}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  @media (prefers-color-scheme: dark){ .chip[aria-pressed="true"]{color:#122016} }
+  .meta-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .count{font-size:14px;color:var(--muted);white-space:nowrap}
+  .sort-btn{
+    appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);
+    font:inherit;font-size:14px;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:7px;
+  }
+  .sort-btn svg{flex:none}
+  .sort-btn:disabled{opacity:.55;cursor:default}
+  .data-status{
+    font-size:13.5px;color:var(--muted);margin:0 0 26px;
+  }
+
+  /* Layout */
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 304px;gap:44px;align-items:start}
+  @media (max-width:860px){ .layout{grid-template-columns:1fr;gap:36px} }
+
+  /* Feed / posts */
+  .feed{display:flex;flex-direction:column;gap:40px;min-width:0}
+  article.post{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  article.post.featured{border-top:4px solid var(--accent)}
+  article.post.family-post{background:var(--surface)}
+  .post-inner{padding:30px 32px 26px}
+  @media (max-width:640px){ .post-inner{padding:24px 20px 22px} }
+  .post-kicker{
+    display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;
+    font-size:13px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+    margin:0 0 12px;
+  }
+  .post-kicker .dot{width:4px;height:4px;border-radius:50%;background:var(--faint)}
+  .tag{
+    background:var(--pill);color:var(--accent-ink);
+    padding:4px 10px;border-radius:999px;letter-spacing:.06em;font-size:12px;
+  }
+  .kind-label{
+    font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 10px;
+  }
+  .kind-label.family{color:var(--clay)}
+  .post h2{
+    font-family:"Newsreader",Georgia,serif;
+    font-weight:500;font-size:clamp(26px,3.4vw,32px);line-height:1.18;letter-spacing:-.01em;
+    margin:0 0 14px;
+  }
+  article.post.featured h2{font-size:clamp(29px,3.8vw,36px)}
+  .post p{margin:0 0 14px}
+  .post p:last-of-type{margin-bottom:0}
+  .post-body{color:var(--ink)}
+  .post-body p{color:var(--ink)}
+  .verbatim{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px 20px;
+    font-family:"Newsreader",Georgia,serif;
+    font-size:20px;line-height:1.55;
+  }
+  .verbatim p{margin:0 0 12px}
+  .verbatim p:last-child{margin-bottom:0}
+  .verbatim-note{font-size:13.5px;color:var(--muted);margin:14px 0 0}
+  .post-foot{
+    display:grid;grid-template-columns:1fr 1fr;gap:0;
+    border-top:1px solid var(--line);margin-top:24px;
+  }
+  @media (max-width:560px){ .post-foot{grid-template-columns:1fr} .post-foot > div + div{border-top:1px solid var(--line)} }
+  .post-foot > div{padding:20px 22px 6px}
+  .post-foot > div:first-child{padding-left:0}
+  @media (max-width:560px){ .post-foot > div{padding-left:0;padding-right:0} }
+  .post-foot > div + div{border-left:1px solid var(--line);padding-left:22px}
+  @media (max-width:560px){ .post-foot > div + div{border-left:none;padding-left:0} }
+  .foot-label{
+    display:flex;align-items:center;gap:8px;
+    font-size:12.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+    margin:0 0 9px;
+  }
+  .foot-label svg{color:var(--clay);flex:none}
+  .next-text{font-size:15.5px;line-height:1.6;color:var(--ink);margin:0}
+  .help-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .help-list li{
+    display:flex;gap:9px;font-size:15.5px;line-height:1.55;align-items:flex-start;
+  }
+  .help-list svg{flex:none;margin-top:4px;color:var(--accent-ink)}
+  .empty{
+    border:1px dashed var(--line);border-radius:14px;padding:36px 28px;text-align:center;color:var(--muted);
+  }
+  .empty strong{display:block;font-family:"Newsreader",Georgia,serif;font-size:24px;font-weight:500;color:var(--ink);margin-bottom:6px}
+
+  /* Sidebar */
+  aside{position:sticky;top:24px;display:flex;flex-direction:column;gap:20px;min-width:0}
+  @media (max-width:860px){ aside{position:static} }
+  .side-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;
+  }
+  .side-card h3{
+    font-family:"Newsreader",Georgia,serif;font-weight:600;font-size:21px;line-height:1.25;margin:0 0 8px;
+  }
+  .side-card p{font-size:15px;color:var(--muted);margin:0 0 12px}
+  .side-card p:last-child{margin-bottom:0}
+  .side-card .help-list li{font-size:15px}
+  .upcoming{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column}
+  .upcoming li{display:flex;gap:14px;padding:12px 0;border-top:1px solid var(--line);align-items:baseline}
+  .upcoming li:first-child{border-top:none;padding-top:2px}
+  .up-date{flex:none;width:86px;font-size:13px;font-weight:700;color:var(--clay);letter-spacing:.02em}
+  .up-text{font-size:15px;line-height:1.5}
+  .up-text span{display:block;color:var(--muted);font-size:13.5px}
+  .side-note{
+    font-size:14px;color:var(--muted);border:1px solid var(--line);border-radius:14px;padding:18px 20px;background:var(--card);
+  }
+  .side-note strong{color:var(--ink)}
+
+  /* Messages for the family */
+  .messages{
+    margin-top:56px;border-top:1px solid var(--line);padding-top:28px;
+  }
+  .messages h2{
+    font-family:"Newsreader",Georgia,serif;font-weight:600;font-size:26px;line-height:1.2;margin:0 0 10px;
+  }
+  .messages > p{font-size:15.5px;color:var(--muted);margin:0 0 18px;max-width:720px}
+  .messages > p strong{color:var(--ink)}
+  .msg-list{display:flex;flex-direction:column;gap:14px;margin:0 0 26px}
+  .msg-empty{
+    border:1px dashed var(--line);border-radius:14px;padding:26px 24px;color:var(--muted);
+    font-size:15.5px;text-align:center;
+  }
+  .msg-empty strong{display:block;font-family:"Newsreader",Georgia,serif;font-size:21px;font-weight:500;color:var(--ink);margin-bottom:4px}
+  .msg-card{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);padding:22px 24px;
+  }
+  .msg-text{
+    font-family:"Newsreader",Georgia,serif;font-size:20px;line-height:1.55;margin:0;
+  }
+  .msg-text p{margin:0 0 12px}
+  .msg-text p:last-child{margin-bottom:0}
+  .msg-meta{font-size:14px;color:var(--muted);margin:14px 0 0;line-height:1.55}
+  .msg-meta strong{color:var(--ink)}
+  .msg-status{font-size:13.5px;color:var(--muted);margin:0 0 26px}
+  .form-embed{
+    border:1px solid var(--line);border-radius:14px;background:var(--card);
+    padding:22px;max-width:720px;overflow:hidden;
+  }
+  @media (max-width:640px){ .form-embed{padding:16px} }
+  .form-embed h3{
+    font-family:"Newsreader",Georgia,serif;font-weight:600;font-size:20px;line-height:1.25;margin:0 0 6px;
+  }
+  .form-embed > p{font-size:14.5px;color:var(--muted);margin:0 0 12px;line-height:1.6}
+  .form-embed > p:last-of-type{margin-bottom:14px}
+  .form-frame{
+    display:block;width:100%;height:880px;border:0;
+    background:var(--card);
+  }
+  @media (max-width:640px){ .form-frame{height:960px} }
+
+  footer.page-foot{
+    margin-top:52px;padding-top:24px;border-top:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:8px 28px;justify-content:space-between;
+    font-size:14px;color:var(--muted);
+  }
+  footer.page-foot p{margin:0;max-width:640px}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="intro">
+    <h1>Family Updates</h1>
+    <p class="lede">This page shares general, factual information about what is happening and what is next, in broad terms. It does not include medical detail.</p>
+    <section class="disclosure" aria-labelledby="disclosure-heading">
+      <h2 id="disclosure-heading">How these updates are written</h2>
+      <p><strong>Factual summary:</strong> a brief, neutral summary prepared from information supplied for this page. It is <strong>not written by Arjun and Erin</strong>, is not in Arjun and Erin&rsquo;s voice, and does not express Arjun and Erin&rsquo;s feelings. Every factual summary is labelled as one.</p>
+      <p><strong>Family post:</strong> an entry written by Arjun and Erin and <strong>posted exactly as submitted</strong> &mdash; no wording added, edited, or paraphrased. Family posts are labelled as such, shown in a distinct style, and filterable separately, so the two are never confused.</p>
+    </section>
+  </header>
+
+  <div class="kind-filter" role="group" aria-label="Filter by entry type">
+    <span class="kind-label-inline">Show:</span>
+    <span id="kindChips"></span>
+  </div>
+
+  <div class="controls" aria-label="Browse updates">
+    <span class="count" id="count" aria-live="polite"></span>
+    <div class="meta-row">
+      <button class="sort-btn" id="sortBtn" type="button" aria-label="Change sort order">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3"/></svg>
+        <span id="sortLabel">Newest first</span>
+      </button>
+      <button class="sort-btn" id="refreshBtn" type="button">Refresh</button>
+    </div>
+  </div>
+  <p class="data-status" id="dataStatus" aria-live="polite"></p>
+
+  <div class="layout">
+    <main class="feed" id="feed" aria-label="Updates"></main>
+
+    <aside aria-label="Ways to help and what's next">
+      <section class="side-card" aria-labelledby="help-heading">
+        <h3 id="help-heading">Ways to support</h3>
+        <p>From the recent factual summaries.</p>
+        <ul class="help-list" id="sideHelp"></ul>
+      </section>
+
+      <section class="side-card" aria-labelledby="next-heading">
+        <h3 id="next-heading">What&rsquo;s next, in general</h3>
+        <p>Only the broad strokes, from the recent factual summaries.</p>
+        <ul class="upcoming" id="upcoming"></ul>
+      </section>
+
+      <div class="side-note">
+        <strong>A note on sharing.</strong> This page stays general on purpose. Please do not forward medical details heard elsewhere. Check with Arjun and Erin first if unsure what is okay to share.
+      </div>
+    </aside>
+  </div>
+
+  <section class="messages" aria-labelledby="messages-heading">
+    <h2 id="messages-heading">Messages for the family</h2>
+    <p>Advice, positive thoughts, and other messages from visitors, shared here <strong>in the sender&rsquo;s own words</strong> once Arjun and Erin have chosen to share them. Nothing is posted here automatically, and nothing on this page is written on the family&rsquo;s behalf.</p>
+    <div class="msg-list" id="approvedMessages">
+      <div class="msg-empty">
+        <strong>No messages shared yet.</strong>
+        Messages Arjun and Erin choose to share will appear here.
+      </div>
+    </div>
+    <p class="msg-status" id="msgStatus" aria-live="polite"></p>
+
+    <div class="form-embed">
+      <h3>Leave a message</h3>
+      <p>Use the form below. Your message goes to Arjun and Erin — it is not posted to this page. It will only appear above once they mark it Approved. No email is collected, and you do not need to sign in.</p>
+      <p>If the form does not load here, <a href="https://docs.google.com/forms/d/e/1FAIpQLSc6idWOvJeDyN7NCtAVPaLPYSEHvF09NM2U43FwtgBprIyY1g/viewform" target="_blank" rel="noopener">open it in a new tab</a>.</p>
+      <iframe class="form-frame" title="Leave a message for the family" src="https://docs.google.com/forms/d/e/1FAIpQLSc6idWOvJeDyN7NCtAVPaLPYSEHvF09NM2U43FwtgBprIyY1g/viewform?embedded=true" width="640" height="880" frameborder="0" marginheight="0" marginwidth="0" loading="lazy">Loading…</iframe>
+    </div>
+  </section>
+
+  <footer class="page-foot">
+    <p>Each post above comes from one row of the family&rsquo;s shared sheet: date, time, title, general update, what&rsquo;s next, ways to support, and entry type. Factual summaries are labelled as not written by Arjun and Erin; family posts are posted verbatim and labelled as such. Messages shown above come only from rows marked Approved in the sheet&rsquo;s Messages tab, in the sender&rsquo;s own words.</p>
+    <p id="latestLine"></p>
+  </footer>
+
+</div>
+
+<script>
+/*
+  DATA SOURCE — one shared workbook, kept as a single sheet per the
+  family's decision ("Link-viewable, keep one sheet"). This page reads
+  ONLY the updates tab named in SHEET_NAME below. It never reads any
+  other tab.
+
+  The rows below are a dated snapshot of that tab, saved at build time
+  on 2026-11-03, so the page still reads correctly if the sheet cannot
+  be reached. On open, the page tries to refresh from the live sheet
+  (the workbook is set to "Anyone with the link can view"); the live
+  response is only used when its column headings match the updates
+  tab headings exactly — a mismatched response is discarded, so a
+  wrong tab can never be rendered here.
+
+  Sheet columns: Date | Title | General update | What's next (general) |
+  Ways to support | Entry type | Time
+
+  Time is optional. When it is filled in, it is shown with the date
+  on each entry. Entries are shown newest first: by date, then by
+  time, then by sheet row — a later row (a higher row number) comes
+  first when the date and time are the same, so the most recent
+  update is never buried under an earlier one from the same day.
+  The "Oldest first" toggle reverses that order. A time written in
+  the Date cell itself is honoured too; the separate Time column,
+  when filled in, takes precedence for that row.
+
+  Entry type is either "Factual summary" (factual summary, not written
+  by Arjun and Erin) or "Family post (verbatim)" (posted word for word
+  from the General update column: no summary sections, pull quotes, or
+  sign-off are added). A blank or unrecognised value is treated as a
+  factual summary.
+
+  MESSAGES — the "Leave a message for the family" Google Form
+  (https://docs.google.com/forms/d/e/1FAIpQLSc6idWOvJeDyN7NCtAVPaLPYSEHvF09NM2U43FwtgBprIyY1g/viewform)
+  writes to the workbook's "Messages" tab: Timestamp | Your name |
+  Your message | How you know us | Status. This page reads that tab
+  (falling back to the form's original "Form Responses 1" tab name)
+  and shows ONLY rows whose Status is "Approved", in the sender's own
+  words, with a blank name shown as "Anonymous". Nothing auto-publishes:
+  a row without Status "Approved" — or a tab without a Status column —
+  is never shown. The same heading check as for updates applies, so a
+  wrong tab can never be rendered as messages.
+
+  The form itself is Google's official embedded form (the form's
+  viewform URL with ?embedded=true, in an iframe), so filling in and
+  submitting happen in Google's own form — there is no copy of the
+  form on this page and no two-step handoff. A link to open the same
+  form in a new tab sits directly above the embed, for any view where
+  the embed does not load.
+*/
+var SHEET_ID = "1whRDPPvZzsoceBNHMGNX_gUKQVcpGnZ8vZoFUUtj6E4";
+var SHEET_NAME = "Outer updates"; // Workbook tab name only — must match the sheet; not shown on the page.
+var BAKED_AS_OF = "2026-11-03";
+var BAKED_ROWS = [
+  {
+    date: "2026-11-02",
+    time: "",
+    entry_type: "Factual summary",
+    title: "An update on Erin",
+    update: [
+      "Erin had a medical procedure last week and is doing fine. Her care team is gathering more information to plan next steps."
+    ],
+    whats_next: "Over the coming weeks, Erin will have more appointments and tests, and her doctors will put together a care plan. Updates will be shared on this page.",
+    ways_to_support: [
+      "Specific ways to help will be shared here as plans become clearer."
+    ]
+  },
+  {
+    date: "2026-11-02",
+    time: "",
+    entry_type: "Factual summary",
+    title: "Next steps for Erin",
+    update: [
+      "Erin's doctors have shared results from last week's procedure. Her care team is now scheduling a few more tests to help plan next steps."
+    ],
+    whats_next: "Over the next week or two, Erin will have another procedure and some routine lab work. Updates will be shared here.",
+    ways_to_support: [
+      "Specific ways to help will be shared here as plans become clearer."
+    ]
+  }
+];
+
+function normalizeEntryType(v){
+  var s = String(v || "").toLowerCase().replace(/[()]/g, "").replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+  if(s === "family" || s === "family post" || s === "family post verbatim" || s === "verbatim" || s === "family verbatim"){
+    return "family";
+  }
+  return "summary";
+}
+
+function splitParagraphs(s){
+  return String(s || "").replace(/\r\n/g, "\n").split(/\n{2,}/).map(function(p){ return p.trim(); }).filter(Boolean);
+}
+function splitList(s){
+  var items = String(s || "").replace(/\r\n/g, "\n").split(/\n/).map(function(p){ return p.trim().replace(/^[•\-\*]\s+/, ""); }).filter(Boolean);
+  return items.length ? items : (String(s || "").trim() ? [String(s).trim()] : []);
+}
+
+function fmtTimeLabel(h24, m){
+  var ap = h24 >= 12 ? "PM" : "AM";
+  var h = h24 % 12; if(h === 0) h = 12;
+  return h + ":" + (m < 10 ? "0" + m : String(m)) + " " + ap;
+}
+function parseTimeString(s){
+  // Accepts "2:30 PM", "2:30pm", "14:30", "9 AM", "9:30", and a
+  // gviz time-of-day value ([hour, minute, second]). Returns
+  // {minutes, label} or null when there is no recognisable time.
+  if(s === null || s === undefined) return null;
+  if(typeof s === "object"){
+    if(Array.isArray(s) && s.length >= 2){
+      var ah = parseInt(s[0], 10), am = parseInt(s[1], 10);
+      if(!isNaN(ah) && !isNaN(am) && ah >= 0 && ah < 24 && am >= 0 && am < 60){
+        return { minutes: ah * 60 + am, label: fmtTimeLabel(ah, am) };
+      }
+    }
+    return null;
+  }
+  var str = String(s).trim();
+  if(!str) return null;
+  var m = str.match(/(\d{1,2})[:.](\d{2})(?::\d{2})?\s*(?:([AaPp])\.?[Mm]\.?)?/);
+  var hour, min, ap = null;
+  if(m){
+    hour = parseInt(m[1], 10); min = parseInt(m[2], 10); ap = m[3] ? m[3].toLowerCase() : null;
+  } else {
+    var m2 = str.match(/(\d{1,2})\s*([AaPp])\.?[Mm]\.?/);
+    if(!m2) return null;
+    hour = parseInt(m2[1], 10); min = 0; ap = m2[2].toLowerCase();
+  }
+  if(min < 0 || min > 59) return null;
+  if(ap){
+    if(hour < 1 || hour > 12) return null;
+    if(ap === "p" && hour !== 12) hour += 12;
+    if(ap === "a" && hour === 12) hour = 0;
+  } else if(hour < 0 || hour > 23){
+    return null;
+  }
+  return { minutes: hour * 60 + min, label: fmtTimeLabel(hour, min) };
+}
+function normalizeRow(raw, index){
+  // One place where a row's date, time, and sheet position become
+  // its display label and its sort position. `index` is the row's
+  // position in the sheet (0 for the first data row): a higher
+  // index is a later, higher-numbered row.
+  var dateIso = "";
+  var dateMinutes = null, dateHasTime = false;
+  if(raw && typeof raw.date === "object" && raw.date){
+    dateIso = raw.date.date || "";
+    dateMinutes = raw.date.minutes; dateHasTime = !!raw.date.hasTime;
+  } else {
+    dateIso = raw ? String(raw.date || "") : "";
+    var dm = dateIso.match(/^(\d{4}-\d{2}-\d{2})[ T](.+)$/);
+    if(dm){
+      dateIso = dm[1];
+      var p0 = parseTimeString(dm[2]);
+      if(p0){ dateMinutes = p0.minutes; dateHasTime = true; }
+    }
+  }
+  if(raw && raw.date_minutes !== undefined && raw.date_minutes !== null){
+    dateMinutes = raw.date_minutes; dateHasTime = !!raw.date_has_time;
+  }
+  var timeParsed = parseTimeString(raw ? raw.time : "");
+  var minutes = null, timeLabel = "";
+  if(timeParsed){
+    minutes = timeParsed.minutes; timeLabel = timeParsed.label;
+  } else if(raw && typeof raw.time === "string" && raw.time.trim()){
+    // Time text that is not a clock time (for example "morning"):
+    // show it as written, but let sheet row order decide its place.
+    timeLabel = raw.time.trim();
+    minutes = dateMinutes;
+  } else if(dateHasTime && dateMinutes !== null){
+    minutes = dateMinutes;
+    timeLabel = fmtTimeLabel(Math.floor(dateMinutes / 60), dateMinutes % 60);
+  }
+  // Date, then time, then sheet row are kept as separate keys:
+  // folding them into one number would let an untimed entry tie
+  // with 11:59 PM the day before.
+  var sortDate = 0;
+  if(/^\d{4}-\d{2}-\d{2}$/.test(dateIso)){
+    var parts = dateIso.split("-");
+    sortDate = Date.UTC(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  }
+  return {
+    rowIndex: index,
+    date: dateIso,
+    time: (raw && typeof raw.time === "string") ? raw.time : "",
+    time_label: timeLabel,
+    sortDate: sortDate,
+    sortMinutes: (minutes === null || minutes === undefined) ? -1 : minutes,
+    entry_type: normalizeEntryType(raw ? raw.entry_type : ""),
+    title: raw ? (raw.title || "") : "",
+    update: (raw && raw.update) ? raw.update.slice() : [],
+    whats_next: raw ? (raw.whats_next || "") : "",
+    ways_to_support: (raw && raw.ways_to_support) ? raw.ways_to_support.slice() : []
+  };
+}
+function compareNewest(a, b){
+  if(a.sortDate !== b.sortDate) return b.sortDate - a.sortDate;
+  if(a.sortMinutes !== b.sortMinutes) return b.sortMinutes - a.sortMinutes;
+  return b.rowIndex - a.rowIndex;
+}
+function compareOldest(a, b){
+  if(a.sortDate !== b.sortDate) return a.sortDate - b.sortDate;
+  if(a.sortMinutes !== b.sortMinutes) return a.sortMinutes - b.sortMinutes;
+  return a.rowIndex - b.rowIndex;
+}
+
+var SHEET_ROWS = BAKED_ROWS.map(function(r, i){
+  return normalizeRow(r, i);
+});
+
+var state = { filter: "All", kindFilter: "all", newestFirst: true };
+
+function fmtDate(iso){
+  if(!iso) return "";
+  var d = new Date(iso + "T12:00:00");
+  if(isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+}
+function fmtShort(iso){
+  if(!iso) return "";
+  var d = new Date(iso + "T12:00:00");
+  if(isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+function fmtDateTime(row){
+  var d = fmtDate(row.date);
+  var t = row.time_label || "";
+  if(d && t) return d + " \u00b7 " + t;
+  if(d) return d;
+  if(t) return t;
+  return "";
+}
+function esc(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+var checkSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>';
+var calSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
+var heartSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>';
+
+function visibleRows(){
+  var rows = SHEET_ROWS.slice();
+  rows.sort(state.newestFirst ? compareNewest : compareOldest);
+  if(state.kindFilter !== "all"){ rows = rows.filter(function(r){ return r.entry_type === state.kindFilter; }); }
+  return rows;
+}
+
+function renderKindChips(){
+  var kinds = [
+    { value: "all", label: "All entries" },
+    { value: "summary", label: "Factual summaries" },
+    { value: "family", label: "Family posts" }
+  ];
+  var wrap = document.getElementById("kindChips");
+  wrap.innerHTML = "";
+  kinds.forEach(function(k){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip";
+    b.textContent = k.label;
+    b.setAttribute("aria-pressed", state.kindFilter === k.value ? "true" : "false");
+    b.addEventListener("click", function(){ state.kindFilter = k.value; render(); });
+    wrap.appendChild(b);
+  });
+}
+
+function renderFeed(){
+  var feed = document.getElementById("feed");
+  var rows = visibleRows();
+  var count = document.getElementById("count");
+  var kindWord = state.kindFilter === "summary" ? (rows.length === 1 ? " factual summary" : " factual summaries") : state.kindFilter === "family" ? (rows.length === 1 ? " family post" : " family posts") : (rows.length === 1 ? " entry" : " entries");
+  count.textContent = rows.length + kindWord;
+  document.getElementById("sortLabel").textContent = state.newestFirst ? "Newest first" : "Oldest first";
+
+  if(!rows.length){
+    var emptyTitle = state.kindFilter === "family" ? "No family posts yet." : "No updates yet.";
+    feed.innerHTML = '<div class="empty"><strong>' + emptyTitle + '</strong>Check back soon for the next update.</div>';
+    return;
+  }
+
+  feed.innerHTML = "";
+  rows.forEach(function(row, i){
+    var isFamily = row.entry_type === "family";
+    var art = document.createElement("article");
+    art.className = "post" + (isFamily ? " family-post" : "") + (i === 0 && !isFamily && state.newestFirst && state.kindFilter === "all" ? " featured" : "");
+    var dateLabel = fmtDateTime(row);
+    var kicker = '<p class="post-kicker">' + (dateLabel ? '<span>' + esc(dateLabel) + '</span>' : '<span>Undated</span>') + '</p>';
+    if(isFamily){
+      // Verbatim: reproduce the General update text exactly as supplied —
+      // no added sections, pull quotes, or sign-off.
+      var verbatim = row.update.map(function(p){ return "<p>" + esc(p) + "</p>"; }).join("");
+      art.innerHTML =
+        '<div class="post-inner">' + kicker +
+          '<p class="kind-label family">Family post &mdash; posted verbatim</p>' +
+          '<h2>' + esc(row.title) + '</h2>' +
+          '<div class="verbatim">' + verbatim + '</div>' +
+          '<p class="verbatim-note">Posted exactly as submitted. No wording has been added, edited, or paraphrased.</p>' +
+        '</div>';
+    } else {
+      var paras = row.update.map(function(p){ return "<p>" + esc(p) + "</p>"; }).join("");
+      var help = row.ways_to_support.map(function(h){ return "<li>" + checkSvg + "<span>" + esc(h) + "</span></li>"; }).join("");
+      var foot = "";
+      if(row.whats_next || help){
+        foot = '<div class="post-foot">' +
+          (row.whats_next ? '<div><p class="foot-label">' + calSvg + ' What&rsquo;s next</p><p class="next-text">' + esc(row.whats_next) + '</p></div>' : '<div></div>') +
+          (help ? '<div><p class="foot-label">' + heartSvg + ' Ways to support</p><ul class="help-list">' + help + '</ul></div>' : '<div></div>') +
+        '</div>';
+      }
+      art.innerHTML =
+        '<div class="post-inner">' + kicker +
+          '<p class="kind-label">Factual summary &mdash; not written by Arjun and Erin</p>' +
+          '<h2>' + esc(row.title) + '</h2>' +
+          '<div class="post-body">' + paras + '</div>' +
+          foot +
+        '</div>';
+    }
+    feed.appendChild(art);
+  });
+}
+
+function renderSidebar(){
+  // Sidebar draws only on factual summaries — family posts carry no
+  // "what's next" or "ways to support" sections.
+  var summaries = SHEET_ROWS.filter(function(r){ return r.entry_type !== "family"; });
+  var sorted = summaries.slice().sort(compareNewest);
+  var seen = {}, helpItems = [];
+  sorted.slice(0, 2).forEach(function(r){
+    r.ways_to_support.forEach(function(h){ if(!seen[h]){ seen[h] = true; helpItems.push(h); } });
+  });
+  document.getElementById("sideHelp").innerHTML = helpItems.length
+    ? helpItems.slice(0,4).map(function(h){ return "<li>" + checkSvg + "<span>" + esc(h) + "</span></li>"; }).join("")
+    : "<li><span>Nothing shared yet.</span></li>";
+
+  var upcomingRows = sorted.filter(function(r){ return r.whats_next; }).slice(0,3);
+  document.getElementById("upcoming").innerHTML = upcomingRows.length
+    ? upcomingRows.map(function(r){
+        var when = esc(fmtShort(r.date)) + (r.time_label ? "<br>" + esc(r.time_label) : "");
+        return '<li><span class="up-date">' + when + '</span>' +
+          '<span class="up-text">' + esc(r.title) + '<span>' + esc(r.whats_next) + '</span></span></li>';
+      }).join("")
+    : '<li><span class="up-text">No upcoming steps shared yet.</span></li>';
+
+  var latest = SHEET_ROWS.slice().sort(compareNewest)[0];
+  document.getElementById("latestLine").textContent = latest
+    ? "Latest entry: " + fmtDate(latest.date) + (latest.time_label ? " at " + latest.time_label : "") + " — \u201c" + latest.title + "\u201d (" + (latest.entry_type === "family" ? "Family post" : "Factual summary") + ")."
+    : "No entries yet.";
+}
+
+function render(){
+  renderKindChips();
+  renderFeed();
+  renderSidebar();
+}
+
+function setStatus(text){
+  document.getElementById("dataStatus").textContent = text;
+}
+
+/* Live refresh from the link-viewable sheet (gviz JSON feed). */
+function cellText(cell){
+  if(!cell) return "";
+  if(cell.f !== undefined && cell.f !== null && String(cell.f).trim() !== "") return String(cell.f);
+  if(cell.v === undefined || cell.v === null) return "";
+  return String(cell.v);
+}
+function parseDateCell(cell){
+  // Returns {date: "YYYY-MM-DD", minutes: null|number, hasTime: bool}.
+  // A Date cell may carry a time as well as a date, either in its
+  // formatted text ("2026-11-02 14:30") or in its Date(...) value.
+  // Both are checked: the formatted text can be date-only even when
+  // the value carries a time.
+  if(!cell) return { date: "", minutes: null, hasTime: false };
+  var f = cell.f ? String(cell.f) : "";
+  var v = cell.v;
+  var date = "", minutes = null, hasTime = false;
+  var fm = f.match(/^(\d{4}-\d{2}-\d{2})(?:[ T](\d{1,2}):(\d{2})(?::\d{2})?\s*([AaPp][Mm])?)?/);
+  if(fm){
+    date = fm[1];
+    if(fm[2] !== undefined){
+      var p = parseTimeString(fm[2] + ":" + fm[3] + (fm[4] || ""));
+      if(p){ minutes = p.minutes; hasTime = true; }
+    }
+  }
+  if(typeof v === "string"){
+    var m = v.match(/^Date\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+),\s*(\d+)(?:,\s*(\d+))?)?\)/);
+    if(m){
+      var y = m[1], mo = String(parseInt(m[2], 10) + 1), d = String(m[3]);
+      var vDate = y + "-" + (mo.length < 2 ? "0" + mo : mo) + "-" + (d.length < 2 ? "0" + d : d);
+      if(!date) date = vDate;
+      if(m[4] !== undefined){
+        minutes = parseInt(m[4], 10) * 60 + parseInt(m[5], 10);
+        hasTime = true;
+      }
+      return { date: date, minutes: minutes, hasTime: hasTime };
+    }
+    if(!date && /^\d{4}-\d{2}-\d{2}$/.test(v)) date = v;
+  }
+  return { date: date || f || "", minutes: minutes, hasTime: hasTime };
+}
+function parseGviz(text){
+  var start = text.indexOf("{");
+  var end = text.lastIndexOf("}");
+  if(start < 0 || end < 0) throw new Error("Unexpected sheet response");
+  var data = JSON.parse(text.slice(start, end + 1));
+  if(!data || data.status !== "ok" || !data.table) throw new Error("Sheet did not return data");
+  var labels = data.table.cols.map(function(c){ return String(c.label || "").toLowerCase().trim(); });
+  function colIdx(needle){
+    for(var i = 0; i < labels.length; i++){ if(labels[i].indexOf(needle) !== -1) return i; }
+    return -1;
+  }
+  // Reject anything that is not the updates tab. The gviz feed
+  // falls back to the first sheet when a tab name is missing, so the
+  // headings check is what keeps another tab's rows off this page.
+  var iDate = colIdx("date"), iTitle = colIdx("title"), iUpdate = colIdx("general update");
+  var iNext = colIdx("what"), iHelp = colIdx("ways to support"), iType = colIdx("entry type");
+  var iTime = -1;
+  for(var ti = 0; ti < labels.length; ti++){
+    if(labels[ti] === "time" || labels[ti].indexOf("time ") === 0 || labels[ti].indexOf("time:") === 0){ iTime = ti; break; }
+  }
+  if(iTime < 0) iTime = colIdx("time");
+  if(iDate < 0 || iTitle < 0 || iUpdate < 0 || iNext < 0 || iHelp < 0) throw new Error("Unexpected sheet columns");
+  var rows = [];
+  (data.table.rows || []).forEach(function(row){
+    var cells = row.c || [];
+    var title = cellText(cells[iTitle]);
+    var updateText = cellText(cells[iUpdate]);
+    if(!title && !updateText) return;
+    var parsedDate = parseDateCell(cells[iDate]);
+    var timeCell = iTime >= 0 ? cells[iTime] : null;
+    var timeRaw = "";
+    if(timeCell){
+      if(Array.isArray(timeCell.v)) timeRaw = timeCell.v;
+      else timeRaw = cellText(timeCell);
+    }
+    rows.push(normalizeRow({
+      date: parsedDate.date,
+      date_minutes: parsedDate.minutes,
+      date_has_time: parsedDate.hasTime,
+      time: timeRaw,
+      entry_type: iType >= 0 ? cellText(cells[iType]) : "",
+      title: title,
+      update: splitParagraphs(updateText),
+      whats_next: cellText(cells[iNext]),
+      ways_to_support: splitList(cellText(cells[iHelp]))
+    }, rows.length));
+  });
+  return rows;
+}
+
+var MESSAGE_SHEETS = ["Messages", "Form Responses 1", ""];
+
+function parseMessagesGviz(text){
+  var start = text.indexOf("{");
+  var end = text.lastIndexOf("}");
+  if(start < 0 || end < 0) throw new Error("Unexpected sheet response");
+  var data = JSON.parse(text.slice(start, end + 1));
+  if(!data || data.status !== "ok" || !data.table) throw new Error("Sheet did not return data");
+  var labels = data.table.cols.map(function(c){ return String(c.label || "").toLowerCase().trim(); });
+  function colIdx(needle){
+    for(var i = 0; i < labels.length; i++){ if(labels[i].indexOf(needle) !== -1) return i; }
+    return -1;
+  }
+  // Both the message column and the Status column must be present:
+  // without Status there is no approval to check, so nothing may show.
+  var iName = colIdx("your name"), iMsg = colIdx("your message");
+  var iRel = colIdx("how you know"), iStatus = colIdx("status"), iTime = colIdx("timestamp");
+  if(iMsg < 0 || iStatus < 0) throw new Error("Unexpected messages columns");
+  var out = [];
+  (data.table.rows || []).forEach(function(row){
+    var cells = row.c || [];
+    if(String(cellText(cells[iStatus])).trim().toLowerCase() !== "approved") return;
+    var msg = cellText(cells[iMsg]).trim();
+    if(!msg) return;
+    out.push({
+      name: iName >= 0 ? cellText(cells[iName]).trim() : "",
+      message: msg,
+      relation: iRel >= 0 ? cellText(cells[iRel]).trim() : "",
+      timestamp: iTime >= 0 ? cellText(cells[iTime]) : ""
+    });
+  });
+  return out;
+}
+
+function parseMessageTime(raw){
+  var s = String(raw || "").trim();
+  if(!s) return 0;
+  var m = s.match(/^Date\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+),\s*(\d+)(?:,\s*(\d+))?)?\)/);
+  if(m){
+    return new Date(parseInt(m[1], 10), parseInt(m[2], 10), parseInt(m[3], 10),
+      parseInt(m[4] || "0", 10), parseInt(m[5] || "0", 10), parseInt(m[6] || "0", 10)).getTime() || 0;
+  }
+  var d = new Date(s);
+  return isNaN(d.getTime()) ? 0 : d.getTime();
+}
+function fmtMessageDate(raw){
+  var t = parseMessageTime(raw);
+  if(!t) return "";
+  return new Date(t).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+function escMultiline(s){
+  return esc(s).replace(/\n/g, "<br>");
+}
+
+function renderMessages(messages, loaded){
+  var wrap = document.getElementById("approvedMessages");
+  var status = document.getElementById("msgStatus");
+  if(!loaded){
+    status.textContent = "Messages couldn’t be checked just now. Use Refresh to try again.";
+    return;
+  }
+  if(!messages.length){
+    wrap.innerHTML = '<div class="msg-empty"><strong>No messages shared yet.</strong> Messages Arjun and Erin choose to share will appear here.</div>';
+    status.textContent = "";
+    return;
+  }
+  status.textContent = messages.length + (messages.length === 1 ? " approved message." : " approved messages.");
+  wrap.innerHTML = "";
+  messages.forEach(function(m){
+    var card = document.createElement("article");
+    card.className = "msg-card";
+    var paras = splitParagraphs(m.message).map(function(p){ return "<p>" + escMultiline(p) + "</p>"; }).join("");
+    var meta = "<strong>" + esc(m.name || "Anonymous") + "</strong>";
+    if(m.relation) meta += " &middot; " + esc(m.relation);
+    var d = fmtMessageDate(m.timestamp);
+    if(d) meta += " &middot; " + esc(d);
+    card.innerHTML = '<div class="msg-text">' + paras + '</div><p class="msg-meta">' + meta + '</p>';
+    wrap.appendChild(card);
+  });
+}
+
+function fetchGviz(sheetName){
+  var controller = null, timer = null;
+  if(window.AbortController){ controller = new AbortController(); timer = setTimeout(function(){ controller.abort(); }, 10000); }
+  var url = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&headers=1";
+  if(sheetName) url += "&sheet=" + encodeURIComponent(sheetName);
+  return fetch(url, controller ? { signal: controller.signal } : undefined)
+    .then(function(res){ if(!res.ok) throw new Error("Sheet request failed"); return res.text(); })
+    .then(function(text){ if(timer) clearTimeout(timer); return text; });
+}
+function tryMessageSheets(idx){
+  if(idx >= MESSAGE_SHEETS.length) return Promise.reject(new Error("No messages tab"));
+  return fetchGviz(MESSAGE_SHEETS[idx]).then(function(text){
+    return parseMessagesGviz(text);
+  }).catch(function(){
+    return tryMessageSheets(idx + 1);
+  });
+}
+function loadMessages(){
+  return tryMessageSheets(0).then(function(messages){
+    messages.sort(function(a, b){
+      var ta = parseMessageTime(a.timestamp), tb = parseMessageTime(b.timestamp);
+      if(ta && tb) return tb - ta;
+      if(ta) return -1;
+      if(tb) return 1;
+      return 0;
+    });
+    renderMessages(messages, true);
+  }).catch(function(){
+    renderMessages([], false);
+  });
+}
+
+var loadingLive = false;
+function loadLive(manual){
+  if(loadingLive) return;
+  loadingLive = true;
+  loadMessages();
+  var btn = document.getElementById("refreshBtn");
+  if(manual){ btn.disabled = true; btn.textContent = "Refreshing…"; }
+  var controller = null, timer = null;
+  if(window.AbortController){ controller = new AbortController(); timer = setTimeout(function(){ controller.abort(); }, 10000); }
+  var url = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&headers=1&sheet=" + encodeURIComponent(SHEET_NAME);
+  fetch(url, controller ? { signal: controller.signal } : undefined)
+    .then(function(res){ if(!res.ok) throw new Error("Sheet request failed"); return res.text(); })
+    .then(function(text){
+      var rows = parseGviz(text);
+      SHEET_ROWS = rows;
+      render();
+      setStatus(rows.length
+        ? "Checked the sheet just now — " + rows.length + (rows.length === 1 ? " update" : " updates") + "."
+        : "Checked the sheet just now — no updates yet.");
+    })
+    .catch(function(){
+      setStatus("Couldn’t reach the sheet, showing the copy saved on " + fmtDate(BAKED_AS_OF) + ". Use Refresh to try again.");
+    })
+    .then(function(){
+      loadingLive = false;
+      if(timer) clearTimeout(timer);
+      btn.disabled = false; btn.textContent = "Refresh";
+    });
+}
+
+document.getElementById("sortBtn").addEventListener("click", function(){
+  state.newestFirst = !state.newestFirst;
+  renderFeed();
+});
+document.getElementById("refreshBtn").addEventListener("click", function(){ loadLive(true); });
+
+render();
+setStatus("Showing the update saved on " + fmtDate(BAKED_AS_OF) + ". Checking the sheet for newer updates…");
+document.getElementById("msgStatus").textContent = "Checking for shared messages…";
+loadLive(false);
+</script>
+</body>
+</html>

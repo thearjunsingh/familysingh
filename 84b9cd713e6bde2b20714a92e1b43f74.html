@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="light dark" />
 <meta name="robots" content="noindex, nofollow" />
 <link rel="icon" href="data:," />
-<title>Inner Circle Updates</title>
+<title>Detailed Updates</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -372,9 +372,9 @@
   <p class="notice" id="sheetStatus" role="status"><span class="dot" aria-hidden="true"></span><span>Loading the latest updates…</span></p>
 
   <header class="intro">
-    <p class="kicker">For the inner circle · Detailed updates</p>
+    <p class="kicker">Detailed updates</p>
     <h1>Updates, stated <em>plainly.</em></h1>
-    <p class="lede">This page lists factual summaries of appointments, findings, and next steps, in date order. Summaries state only what is known at the time of writing, and note what is still outstanding.</p>
+    <p class="lede">This page lists factual summaries of appointments, findings, and next steps, newest first. Summaries state only what is known at the time of writing, and note what is still outstanding.</p>
     <p class="small">These entries are not written by Arjun or Erin, and do not express views or feelings on their behalf. Entries the family writes themselves are labelled separately and posted exactly as written — see below.</p>
     <div class="intro-meta" id="introMeta" aria-label="About these updates">
       <span>Loading updates…</span>
@@ -433,11 +433,12 @@
         <p><strong>How to read this page.</strong></p>
         <p>Unless an entry is labelled &ldquo;Family post — posted verbatim,&rdquo; it is a factual summary. It records what happened, what was found, and what is scheduled. It does not add views, feelings, or wording on the family&rsquo;s behalf.</p>
         <p>Information marked as outstanding was outstanding at the time the entry was written. Later entries record later information.</p>
+        <p>Updates are listed newest first. When two updates share a date, the one added later in the sheet appears first; if a time is entered in the sheet&rsquo;s Date column, it is shown with the date and orders updates within the day.</p>
       </div>
 
       <div class="quiet-note">
         <p><strong>Sharing news with friends or family?</strong></p>
-        <p>Please use the <a href="outer-circle-updates.html">Outer Circle Updates page</a> and share its link, rather than sharing this page. That page carries the version with less detail.</p>
+        <p>Please use the <a href="family-updates.html">Family Updates</a> page and share its link, rather than sharing this page. That page carries the version with less detail.</p>
       </div>
     </aside>
 
@@ -445,7 +446,7 @@
   </div>
 
   <footer>
-    <span><b>Inner Circle Updates</b> — factual summaries, plus family posts posted verbatim, for the inner circle.</span>
+    <span><b>Detailed Updates</b> — factual summaries, plus family posts posted verbatim.</span>
     <span id="footerStatus">Loading updates…</span>
   </footer>
 
@@ -484,6 +485,14 @@
   Inner updates columns (matched by header label, not position):
     Date, Title, What's happening, What's next, When,
     Findings and details, How to help, Entry type.
+
+  A Date value may carry a time (a date and time entered in the Date
+  column). When one is present it is shown with the date and used for
+  ordering; a date-only value shows no time, rather than inventing
+  one. Updates are ordered newest first by date and time; rows that
+  share a date and time are ordered by sheet row, later rows first,
+  so the most recently added update is never buried under an earlier
+  one with the same date.
 
   Entry type controls how a row is shown, and it is never inferred from
   wording:
@@ -529,22 +538,56 @@ function cellText(cell){
   if (cell.v !== undefined && cell.v !== null) return String(cell.v);
   return "";
 }
+function parseTimeSuffix(s){
+  var m = /(?:[T ]|^)(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AaPp][Mm])?\b/.exec(s);
+  if (!m) return null;
+  var h = +m[1], min = +m[2], sec = +(m[3] || 0);
+  if (m[4]){
+    var ap = m[4].toLowerCase();
+    if (ap === "pm" && h < 12) h += 12;
+    if (ap === "am" && h === 12) h = 0;
+  }
+  if (h > 23 || min > 59 || sec > 59) return null;
+  return { h: h, min: min, sec: sec };
+}
 function cellDate(cell){
   if (!cell) return null;
   var v = cell.v;
   if (typeof v === "string"){
-    var m = /Date\((\d+),\s*(\d+),\s*(\d+)/.exec(v);
-    if (m) return new Date(+m[1], +m[2], +m[3]);
+    var m = /Date\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+),\s*(\d+)(?:,\s*(\d+))?)?/.exec(v);
+    if (m) return new Date(+m[1], +m[2], +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
   }
   var s = (cell.f !== undefined && cell.f !== null && cell.f !== "") ? String(cell.f) : (v !== undefined && v !== null ? String(v) : "");
   s = s.trim();
   if (!s) return null;
+  var t = parseTimeSuffix(s);
   var iso = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s);
-  if (iso) return new Date(+iso[1], +iso[2] - 1, +iso[3]);
+  if (iso) return new Date(+iso[1], +iso[2] - 1, +iso[3], t ? t.h : 0, t ? t.min : 0, t ? t.sec : 0);
   var us = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(s);
-  if (us) return new Date(+us[3], +us[1] - 1, +us[2]);
+  if (us) return new Date(+us[3], +us[1] - 1, +us[2], t ? t.h : 0, t ? t.min : 0, t ? t.sec : 0);
   var d = new Date(s);
   return isNaN(d.getTime()) ? null : d;
+}
+/* A time is shown only when the sheet value actually carries one:
+   a non-midnight time in the Date(...) value, or a time in the
+   formatted text. A date-only value shows no time, rather than
+   inventing one — midnight would be a guess, not a fact. */
+function dateCellHasTime(cell){
+  if (!cell) return false;
+  var v = cell.v;
+  if (typeof v === "string"){
+    var m = /Date\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+),\s*(\d+)(?:,\s*(\d+))?)?/.exec(v);
+    if (m){
+      var h = +(m[4] || 0), min = +(m[5] || 0), sec = +(m[6] || 0);
+      return h !== 0 || min !== 0 || sec !== 0;
+    }
+  }
+  var s = (cell.f !== undefined && cell.f !== null && cell.f !== "") ? String(cell.f) : (v !== undefined && v !== null ? String(v) : "");
+  var t = parseTimeSuffix(s.trim());
+  return !!t && (t.h !== 0 || t.min !== 0 || t.sec !== 0);
+}
+function formatTime(d){
+  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 }
 function formatLongDate(d){
   return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
@@ -750,6 +793,11 @@ function getDate(cells, map, key){
   if (i === undefined || i === null) return null;
   return cellDate(cells[i]);
 }
+function getDateHasTime(cells, map, key){
+  var i = map[key];
+  if (i === undefined || i === null) return false;
+  return dateCellHasTime(cells[i]);
+}
 function getRawDateText(cells, map, key){
   var i = map[key];
   if (i === undefined || i === null) return "";
@@ -768,12 +816,16 @@ function parseUpdates(table){
     var helpText = getText(cells, map, "help");
     var entryType = getText(cells, map, "entry");
     var dateObj = getDate(cells, map, "date");
+    var hasTime = getDateHasTime(cells, map, "date");
     var rawDate = getRawDateText(cells, map, "date");
     if (!title && !bodyText && !nextText && !whenText && !findingsText && !helpText && !entryType && !dateObj && !rawDate) return;
     var paras = splitParagraphs(bodyText);
     out.push({
       dateObj: dateObj,
+      hasTime: hasTime,
+      timeText: (dateObj && hasTime) ? formatTime(dateObj) : "",
       displayDate: dateObj ? formatLongDate(dateObj) : (rawDate || "Date not listed"),
+      displayStamp: dateObj ? formatLongDate(dateObj) + (hasTime ? " · " + formatTime(dateObj) : "") : (rawDate || "Date not listed"),
       weekday: dateObj ? formatWeekday(dateObj) : "",
       title: title || "Update",
       entryType: entryType || "Factual summary",
@@ -787,9 +839,12 @@ function parseUpdates(table){
       sheetOrder: idx
     });
   });
+  /* Newest first by date and time. Rows sharing a date and time are
+     ordered by sheet row, later rows first, so the most recently
+     added update is never buried under an earlier one. */
   out.sort(function(a, b){
     if (b.sortKey !== a.sortKey) return b.sortKey - a.sortKey;
-    return a.sheetOrder - b.sheetOrder;
+    return b.sheetOrder - a.sheetOrder;
   });
   return out;
 }
@@ -811,11 +866,13 @@ function parseKeyDates(table){
     var notes = getText(cells, map, "notes");
     var audience = getText(cells, map, "audience");
     var dateObj = getDate(cells, map, "date");
+    var hasTime = getDateHasTime(cells, map, "date");
     var rawDate = getRawDateText(cells, map, "date");
     if (!what && !notes && !dateObj && !rawDate) return;
     if (!visibleToInner(audience)) return;
     out.push({
       dateObj: dateObj,
+      timeText: (dateObj && hasTime) ? formatTime(dateObj) : "",
       month: dateObj ? dateObj.toLocaleDateString("en-US", { month: "short" }) : "",
       day: dateObj ? String(dateObj.getDate()) : "",
       rawDate: rawDate,
@@ -911,7 +968,7 @@ function renderStatus(){
     return;
   }
   var familyCount = UPDATES.filter(isVerbatimEntry).length;
-  var latest = UPDATES.length ? UPDATES[0].displayDate : "";
+  var latest = UPDATES.length ? UPDATES[0].displayStamp : "";
   if (UPDATES.length === 0){
     statusText.textContent = "No updates have been added yet. New rows added to the shared sheet will appear here.";
     var none = document.createElement("span");
@@ -1030,6 +1087,9 @@ function renderFeed(){
     var dateEl = document.createElement("span");
     dateEl.className = "post-date";
     dateEl.appendChild(document.createTextNode(u.displayDate));
+    if (u.timeText){
+      dateEl.appendChild(document.createTextNode(" · " + u.timeText));
+    }
     if (u.weekday){
       var wd = document.createElement("span");
       wd.className = "weekday";
@@ -1148,10 +1208,7 @@ function renderFeed(){
     var by = document.createElement("span");
     by.className = "by";
     by.textContent = isVerbatim ? "Family post · Posted verbatim · Wording unchanged" : "Factual summary · Not written by the family";
-    var scope = document.createElement("span");
-    scope.textContent = "For the inner circle only";
     foot.appendChild(by);
-    foot.appendChild(scope);
     inner.appendChild(foot);
 
     art.appendChild(inner);
@@ -1206,6 +1263,7 @@ function renderKeyDates(){
     what.textContent = d.what;
     info.appendChild(what);
     var whereText = d.notes;
+    if (d.timeText) whereText = whereText ? d.timeText + " · " + whereText : d.timeText;
     if (!d.dateObj && d.rawDate) whereText = whereText ? d.rawDate + " · " + whereText : d.rawDate;
     if (whereText){
       var where = document.createElement("div");
