@@ -284,29 +284,6 @@
   }
   .post-foot .by{font-weight:600;color:var(--ink-soft)}
 
-  /* How the two entry types work */
-  .entry-types{
-    display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:26px 0 0;
-  }
-  @media (max-width:640px){.entry-types{grid-template-columns:1fr}}
-  .entry-type{
-    border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);
-    padding:18px 20px;box-shadow:var(--shadow);
-  }
-  .entry-type h2{
-    font-size:13px;letter-spacing:.11em;text-transform:uppercase;font-weight:700;
-    margin:0 0 8px;color:var(--forest);
-  }
-  .entry-type p{margin:0 0 8px;font-size:15px;line-height:1.6;color:var(--ink-soft)}
-  .entry-type p:last-child{margin-bottom:0}
-  .entry-type code{
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;
-    background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;
-    color:var(--ink);white-space:nowrap;
-  }
-  .entry-type.family h2{color:var(--clay)}
-  .entry-type.family{background:var(--clay-soft)}
-  @media (prefers-color-scheme: dark){.entry-type.family{background:var(--surface)}}
   .source-badge{
     font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:999px;
     border:1px solid var(--line-strong);color:var(--ink-soft);background:var(--surface-2);
@@ -375,24 +352,10 @@
     <p class="kicker">Detailed updates</p>
     <h1>Updates, stated <em>plainly.</em></h1>
     <p class="lede">This page lists factual summaries of appointments, findings, and next steps, newest first. Summaries state only what is known at the time of writing, and note what is still outstanding.</p>
-    <p class="small">These entries are not written by Arjun or Erin, and do not express views or feelings on their behalf. Entries the family writes themselves are labelled separately and posted exactly as written — see below.</p>
     <div class="intro-meta" id="introMeta" aria-label="About these updates">
       <span>Loading updates…</span>
     </div>
 
-    <div class="entry-types" aria-label="How entries are marked">
-      <section class="entry-type">
-        <h2>Factual summary</h2>
-        <p>The default entry type. A neutral summary of the facts provided: what happened, what was found, and what is scheduled next. No added sentiment, interpretation, or wording attributed to the family.</p>
-        <p>Sheet value: <code>Entry type: Factual summary</code></p>
-      </section>
-      <section class="entry-type family">
-        <h2>Family post — posted verbatim</h2>
-        <p>Written by the family themselves. Posted exactly as entered in the sheet — not edited, shortened, summarised, or reworded. These may be personal, because they are the family&rsquo;s own words.</p>
-        <p>Sheet value: <code>Entry type: Family post (verbatim)</code></p>
-      </section>
-    </div>
-    <p class="small" style="margin-top:14px">To add a family post, add a row to the sheet, set <strong>Entry type</strong> to <strong>Family post (verbatim)</strong>, and enter the full text in the <strong>What&rsquo;s happening</strong> column. Only that text is shown, unchanged. The <strong>Findings &amp; details</strong>, <strong>What&rsquo;s next</strong>, <strong>When</strong>, and <strong>How to help</strong> columns are ignored for verbatim rows. Every other row is treated as a factual summary.</p>
     <hr class="rule" />
   </header>
 
