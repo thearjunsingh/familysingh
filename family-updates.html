@@ -326,7 +326,7 @@
 
       <section class="side-card" aria-labelledby="next-heading">
         <h3 id="next-heading">What&rsquo;s next, in general</h3>
-        <p>Only the broad strokes, from the recent factual summaries.</p>
+        <p>Only the broad strokes, from the newest update.</p>
         <ul class="upcoming" id="upcoming"></ul>
       </section>
 
@@ -695,7 +695,7 @@ function renderSidebar(){
     ? helpItems.slice(0,4).map(function(h){ return "<li>" + checkSvg + "<span>" + esc(h) + "</span></li>"; }).join("")
     : "<li><span>Nothing shared yet.</span></li>";
 
-  var upcomingRows = sorted.filter(function(r){ return r.whats_next; }).slice(0,3);
+  var upcomingRows = (sorted[0] && sorted[0].whats_next ? [sorted[0]] : []);
   document.getElementById("upcoming").innerHTML = upcomingRows.length
     ? upcomingRows.map(function(r){
         var when = esc(fmtShort(r.date)) + (r.time_label ? "<br>" + esc(r.time_label) : "");
