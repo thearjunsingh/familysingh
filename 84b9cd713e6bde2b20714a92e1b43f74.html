@@ -825,7 +825,7 @@ function parseKeyDates(table){
     var hasTime = getDateHasTime(cells, map, "date");
     var rawDate = getRawDateText(cells, map, "date");
     if (!what && !notes && !dateObj && !rawDate) return;
-    if (!visibleToInner(audience)) return;
+    if (!visibleToInner(audience)) return; if (dateObj && new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()).getTime() < new Date().setHours(0, 0, 0, 0)) return;
     out.push({
       dateObj: dateObj,
       timeText: (dateObj && hasTime) ? formatTime(dateObj) : "",
@@ -1197,7 +1197,7 @@ function renderKeyDates(){
     var nli = document.createElement("li");
     var np = document.createElement("p");
     np.className = "sidebar-empty";
-    np.textContent = "No dates listed yet.";
+    np.textContent = "No upcoming dates listed.";
     nli.appendChild(np);
     ul.appendChild(nli);
     return;
