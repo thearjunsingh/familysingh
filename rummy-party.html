@@ -195,7 +195,6 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible{outline:3px
 @media (max-width:900px){.tv.lobby{grid-template-columns:1fr;overflow:auto;align-content:start}body{overflow:auto}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
@@ -283,7 +282,6 @@ const clone=x=>JSON.parse(JSON.stringify(x));
 /* =====================================================================
    Shared UI helpers
    ===================================================================== */
-const PREFIX='rummyparty-v1-';
 const AVATAR_COLORS=['#FF7A7A','#5FB4FF','#7BE08A','#FFD54A','#BBA3FF','#FF9F4A','#FF8EC0','#4FD8E8'];
 const TIMERS=[0,60,90,120,180];
 const timerLabel=s=>s?`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`:'No timer';
@@ -309,16 +307,95 @@ let wakeLock=null;
 async function keepAwake(){ try{ if('wakeLock' in navigator && (!wakeLock||wakeLock.released)) wakeLock=await navigator.wakeLock.request('screen'); }catch(e){} }
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') keepAwake(); });
 document.addEventListener('pointerdown',keepAwake,{once:true});
-function peerLibMissing(){
-  app.innerHTML=`<main class="phone"><div class="ph-center ph-pad">${logoHTML()}<p class="lead">The connection library didn't load.</p><p class="note">Check your internet connection and reload the page.</p><button class="btn big" onclick="location.reload()">Reload</button></div></main>`;
+/* =====================================================================
+   Relay transport: a tiny MQTT 3.1.1 client over WebSocket, fanned out
+   to several free public brokers at once. Every message goes to every
+   broker; receivers drop duplicates by (sender, sequence number), so the
+   game keeps working while at least one broker is reachable.
+   ===================================================================== */
+const BROKERS=window.RP_BROKERS||['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081/mqtt'];
+const TOPIC_ROOT='rummyparty/v2/';
+const te=new TextEncoder(), td=new TextDecoder();
+const mStr=s=>{const b=te.encode(s);const o=new Uint8Array(b.length+2);o[0]=b.length>>8;o[1]=b.length&255;o.set(b,2);return o;};
+function mPkt(h,parts){
+  const len=parts.reduce((s,p)=>s+p.length,0), lb=[]; let n=len;
+  do{let d=n%128;n=Math.floor(n/128);if(n>0)d|=128;lb.push(d);}while(n>0);
+  const out=new Uint8Array(1+lb.length+len); out[0]=h; out.set(lb,1);
+  let o=1+lb.length; for(const p of parts){out.set(p,o);o+=p.length;} return out;
 }
+class RelayLink{
+  constructor(url,topics,onMsg,onChange){ Object.assign(this,{url,topics,onMsg,onChange,up:false,delay:1000,dead:false,buf:new Uint8Array(0)}); this.open(); }
+  open(){
+    if(this.dead) return;
+    let ws; try{ ws=new WebSocket(this.url,['mqtt']); }catch(e){ return this.retry(); }
+    this.ws=ws; ws.binaryType='arraybuffer'; this.buf=new Uint8Array(0);
+    const guard=setTimeout(()=>{ if(!this.up){ try{ws.close();}catch(e){} } },10000);
+    ws.onopen=()=>{ ws.send(mPkt(0x10,[mStr('MQTT'),new Uint8Array([4,2,0,60]),mStr('rp'+Math.random().toString(36).slice(2,12))])); };
+    ws.onmessage=e=>{ if(ws===this.ws) this.feed(new Uint8Array(e.data)); };
+    ws.onerror=()=>{};
+    ws.onclose=()=>{ clearTimeout(guard); if(ws!==this.ws) return; clearInterval(this.ping); const was=this.up; this.up=false; if(was) this.onChange(); this.retry(); };
+  }
+  retry(){ if(this.dead) return; clearTimeout(this.rt); this.rt=setTimeout(()=>this.open(),this.delay); this.delay=Math.min(15000,this.delay*2); }
+  reconnectNow(force){
+    if(this.dead||(this.up&&!force)) return;
+    clearTimeout(this.rt); clearInterval(this.ping); this.delay=1000;
+    const old=this.ws; this.ws=null; const was=this.up; this.up=false;
+    try{ old&&old.close(); }catch(e){}
+    if(was) this.onChange();
+    this.open();
+  }
+  feed(chunk){
+    const b=new Uint8Array(this.buf.length+chunk.length); b.set(this.buf); b.set(chunk,this.buf.length); this.buf=b;
+    while(this.buf.length>=2){
+      let mult=1, rem=0, i=1, byte;
+      do{ if(i>=this.buf.length) return; byte=this.buf[i++]; rem+=(byte&127)*mult; mult*=128; }while(byte&128);
+      if(this.buf.length<i+rem) return;
+      const h=this.buf[0], body=this.buf.subarray(i,i+rem); this.buf=this.buf.slice(i+rem); this.handle(h,body);
+    }
+  }
+  handle(h,b){
+    const type=h>>4;
+    if(type===2){
+      if(b[1]!==0){ try{this.ws.close();}catch(e){} return; }
+      this.up=true; this.delay=1000;
+      const parts=[new Uint8Array([0,1])]; this.topics.forEach(t=>parts.push(mStr(t),new Uint8Array([0])));
+      this.send(mPkt(0x82,parts));
+      clearInterval(this.ping); this.ping=setInterval(()=>this.send(new Uint8Array([0xC0,0])),25000);
+      this.onChange();
+    } else if(type===3){
+      const tl=(b[0]<<8)|b[1], topic=td.decode(b.subarray(2,2+tl)); let o=2+tl; if((h>>1)&3) o+=2;
+      let m; try{ m=JSON.parse(td.decode(b.subarray(o))); }catch(e){ return; }
+      this.onMsg(topic,m);
+    }
+  }
+  publish(topic,bytes){ if(this.up) this.send(mPkt(0x30,[mStr(topic),bytes])); }
+  send(p){ try{ if(this.ws&&this.ws.readyState===1) this.ws.send(p); }catch(e){} }
+  close(){ this.dead=true; clearTimeout(this.rt); clearInterval(this.ping); try{ this.ws&&this.ws.close(); }catch(e){} }
+}
+function makeNet(topics,onMsg,onChange){
+  const sid=Math.random().toString(36).slice(2,12); let n=0; const seen=new Map();
+  const handle=(topic,m)=>{
+    if(!m||typeof m!=='object'||typeof m.s!=='string'||typeof m.n!=='number'||m.s===sid) return;
+    if(m.n<=(seen.get(m.s)||0)) return; seen.set(m.s,m.n);
+    if(m.d&&typeof m.d==='object') onMsg(topic,m.d);
+  };
+  const links=BROKERS.map(u=>new RelayLink(u,topics,handle,()=>onChange&&onChange()));
+  return {
+    publish(topic,d){ const bytes=te.encode(JSON.stringify({s:sid,n:++n,d})); links.forEach(l=>l.publish(topic,bytes)); },
+    up(){ return links.filter(l=>l.up).length; }, total:links.length,
+    wake(force){ links.forEach(l=>l.reconnectNow(force)); },
+    close(){ links.forEach(l=>l.close()); }
+  };
+}
+const topicFor=(code,who)=>TOPIC_ROOT+code+'/'+who;
 
 /* =====================================================================
    HOST (the shared screen)
    ===================================================================== */
-let H=null, hostPeer=null, hostReady=false, hostStatus='Connecting…', qrNode=null, qrFor='';
-const conns=new Map();
-let bcastTimer=null, confettiRound=0, joinOpen=false, confirmNew=false;
+let H=null, hostNet=null, qrNode=null, qrFor='';
+let bcastTimer=null, confettiRound=0, joinOpen=false, confirmNew=false, lastBeat=0, lastSweep=0;
+const PING_MS=4000, AWAY_MS=15000;
+const hostReady=()=>!!hostNet&&hostNet.up()>0;
 
 function genCode(){ const L='ABCDEFGHJKMNPQRSTUVWXYZ'; let s=''; for(let i=0;i<4;i++) s+=L[Math.floor(Math.random()*L.length)]; return s; }
 function newHostState(code){ return {code:code||genCode(),phase:'lobby',players:[],table:[],pool:[],turn:0,turnId:0,start:null,work:null,deadline:0,timer:120,passes:0,round:0,starter:0,result:null,msg:''}; }
@@ -332,38 +409,21 @@ function startHost(){
   if(saved && Date.now()-(saved.savedAt||0)<6*3600e3){ H=saved; delete H.savedAt; H.players.forEach(p=>p.online=false); if(H.phase==='lobby') H.players=[]; }
   else H=newHostState();
   if(H.phase==='play' && H.deadline) H.deadline=Date.now()+Math.max(30000,H.timer*1000);
-  openHostPeer(); renderHost();
+  saveHost(); openHostNet(); renderHost();
   setInterval(hostTick,300);
   addEventListener('resize',()=>{ if(H.phase==='play') fitTable(); });
+  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&hostNet) hostNet.wake(); });
 }
-function openHostPeer(){
-  if(typeof Peer==='undefined') return peerLibMissing();
-  hostReady=false; hostStatus='Connecting to the game server…';
-  const peer=new Peer(PREFIX+H.code,{debug:0}); hostPeer=peer;
-  peer.on('open',()=>{ hostReady=true; hostStatus='Ready for players'; renderHost(); });
-  peer.on('connection',conn=>{
-    conn.on('data',d=>onHostData(conn,d));
-    conn.on('close',()=>onHostClose(conn));
-    conn.on('error',()=>onHostClose(conn));
-  });
-  peer.on('disconnected',()=>{ hostStatus='Reconnecting to the game server…'; renderStatus(); setTimeout(()=>{ if(!peer.destroyed&&peer.disconnected){ try{peer.reconnect();}catch(e){} } },2000); });
-  peer.on('error',err=>{
-    if(peer!==hostPeer) return;
-    if(err.type==='unavailable-id'){ hostStatus='Reclaiming game code '+H.code+'…'; try{peer.destroy();}catch(e){} setTimeout(openHostPeer,3000); }
-    else if(['network','server-error','socket-error','socket-closed'].includes(err.type)){ hostStatus='Reconnecting to the game server…'; setTimeout(()=>{ if(peer.destroyed) openHostPeer(); else if(peer.disconnected){try{peer.reconnect();}catch(e){}} },3000); }
-    renderStatus();
-  });
+function openHostNet(){
+  if(hostNet) hostNet.close();
+  hostNet=makeNet([topicFor(H.code,'host')],onHostMsg,()=>{ renderStatus(); if(hostReady()) broadcast(true); });
 }
-function onHostClose(conn){
-  const pid=conn._pid; if(!pid||conns.get(pid)!==conn) return;
-  conns.delete(pid);
-  const p=H.players.find(x=>x.pid===pid); if(!p) return;
+function markAway(p){
   if(H.phase==='lobby'){ H.players=H.players.filter(x=>x!==p); H.msg=`${p.name} left.`; }
   else { p.online=false;
     if(H.phase==='play' && cur()===p){ const grace=Date.now()+30000; if(!H.deadline||H.deadline>grace) H.deadline=grace; } }
-  broadcast();
 }
-const send=(conn,m)=>{ try{ if(conn&&conn.open) conn.send(m); }catch(e){} };
+const send=(pid,m)=>{ if(hostNet) hostNet.publish(topicFor(H.code,'p/'+pid),m); };
 function cleanName(s){ return String(s||'').replace(/[\u0000-\u001f]/g,'').trim().slice(0,12); }
 function conserves(table,rack){
   if(!Array.isArray(table)||!Array.isArray(rack)||!table.every(Array.isArray)) return false;
@@ -372,24 +432,29 @@ function conserves(table,rack){
 }
 const isCurrent=(pid,turnId)=>H.phase==='play' && cur() && cur().pid===pid && turnId===H.turnId;
 
-function onHostData(conn,d){
-  if(!d||typeof d!=='object') return;
+function onHostMsg(topic,d){
+  const pid=String(d.pid||'').slice(0,40); if(!/^[a-z0-9]+$/.test(pid)) return;
+  let p=H.players.find(x=>x.pid===pid);
   if(d.t==='hello'){
-    const pid=String(d.pid||'').slice(0,40); if(!pid) return;
-    let p=H.players.find(x=>x.pid===pid);
-    if(!p){
-      if(H.phase==='play') return send(conn,{t:'notice',msg:'A round is in progress. You can join when it ends.'});
-      if(H.players.length>=MAX_PLAYERS) return send(conn,{t:'notice',msg:`This game is full (${MAX_PLAYERS} players).`});
-      p={pid,name:'',color:'',rack:[],score:0,melded:false,online:true}; H.players.push(p);
-      H.msg=`${cleanName(d.name)||'A player'} joined.`;
+    const name=cleanName(d.name)||'Player', color=safeColor(d.color);
+    if(p&&p.online&&p.name===name&&p.color===color){
+      p.lastSeen=Date.now();
+      if(d.need) send(pid,stateFor(p,publicState()));
+      return;
     }
-    p.name=cleanName(d.name)||'Player'; p.color=safeColor(d.color); p.online=true;
-    const old=conns.get(pid); if(old&&old!==conn){ try{old.close();}catch(e){} }
-    conns.set(pid,conn); conn._pid=pid;
+    if(!p){
+      if(H.phase==='play') return send(pid,{t:'notice',msg:'A round is in progress. You can join when it ends.'});
+      if(H.players.length>=MAX_PLAYERS) return send(pid,{t:'notice',msg:`This game is full (${MAX_PLAYERS} players).`});
+      p={pid,name:'',color:'',rack:[],score:0,melded:false,online:true}; H.players.push(p);
+      H.msg=`${name} joined.`;
+    }
+    p.name=name; p.color=color; p.online=true; p.lastSeen=Date.now();
     if(H.phase==='play' && cur()===p) H.work=null;
     return broadcast();
   }
-  const pid=conn._pid, p=H.players.find(x=>x.pid===pid); if(!p) return;
+  if(!p) return;
+  p.lastSeen=Date.now();
+  if(!p.online) return;
   const boss=pid===hostPid();
   switch(d.t){
     case 'timer': if(boss&&H.phase!=='play'&&TIMERS.includes(d.v)){H.timer=d.v;broadcast();} break;
@@ -400,9 +465,9 @@ function onHostData(conn,d){
       break;
     case 'end':
       if(!isCurrent(pid,d.turnId)) break;
-      if(!conserves(d.table,d.rack)){ send(conn,{t:'err',msg:'Your board got out of sync. Tap Reset and try again.'}); break; }
+      if(!conserves(d.table,d.rack)){ send(pid,{t:'err',msg:'Your board got out of sync. Tap Reset and try again.'}); break; }
       { const v=validateEnd(H.start.table,H.start.rack,d.table,d.rack,p.melded);
-        if(v.ok) commitTurn(d.table,d.rack,v.played); else send(conn,{t:'err',msg:v.msg}); }
+        if(v.ok) commitTurn(d.table,d.rack,v.played); else send(pid,{t:'err',msg:v.msg}); }
       break;
     case 'draw': if(isCurrent(pid,d.turnId)) drawAndPass(false); break;
   }
@@ -414,13 +479,11 @@ function publicState(){
     table:H.work?H.work.table:H.table, freshBase:H.phase==='play'&&H.start?H.start.table.flat():[],
     turnPid:H.phase==='play'?cur().pid:null, turnId:H.turnId, remain:H.phase==='play'&&H.deadline?Math.max(0,H.deadline-Date.now()):0};
 }
+const stateFor=(p,pub)=>({t:'state',pub,me:{pid:p.pid,rack:p.rack,melded:p.melded},turnStart:(pub.turnPid===p.pid)?H.start:null});
 function broadcast(skipRender){
-  saveHost();
+  saveHost(); lastBeat=Date.now();
   const pub=publicState();
-  for(const p of H.players){
-    const c=conns.get(p.pid); if(!c) continue;
-    send(c,{t:'state',pub,me:{pid:p.pid,rack:p.rack,melded:p.melded},turnStart:(pub.turnPid===p.pid)?H.start:null});
-  }
+  for(const p of H.players) if(p.online) send(p.pid,stateFor(p,pub));
   if(!skipRender) renderHost();
 }
 function startRound(){
@@ -480,6 +543,13 @@ function endRound(wi){
 }
 function toLobby(){ H.phase='lobby'; H.result=null; H.table=[]; H.players=H.players.filter(p=>p.online); H.players.forEach(p=>{p.rack=[];p.melded=false;}); H.msg=''; broadcast(); }
 function hostTick(){
+  const now=Date.now();
+  if(now-lastSweep>1000){
+    lastSweep=now;
+    const gone=H.players.filter(p=>p.online&&now-(p.lastSeen||0)>AWAY_MS);
+    if(gone.length){ gone.forEach(markAway); broadcast(); }
+    else if(now-lastBeat>PING_MS&&hostReady()) broadcast(true);
+  }
   if(H.phase!=='play') return;
   if(H.deadline && Date.now()>H.deadline) return timeoutTurn();
   updateHostClock();
@@ -494,7 +564,10 @@ function updateHostClock(){
 
 /* ---- host rendering ---- */
 function renderStatus(){ const el=$('#hstatus'); if(el) el.innerHTML=statusHTML(); }
-function statusHTML(){ return `<span class="status">${hostReady?'<b>●</b> ':'<b class="no">●</b> '}${esc(hostStatus)}</span>`; }
+function statusHTML(){
+  const up=hostNet?hostNet.up():0;
+  return `<span class="status">${up?`<b>●</b> Ready for players`:'<b class="no">●</b> Connecting to the game relay…'}</span>`;
+}
 function renderHost(){
   if(!H) return;
   if(H.phase==='lobby') renderLobby();
@@ -512,7 +585,7 @@ function renderLobby(){
       ${logoHTML()}
       <p class="lead">Scan with your phone camera to grab a seat. Your tiles stay on your phone.</p>
       <div class="qr-wrap">
-        <div class="qr" id="qr">${hostReady?'':'<span class="wait">Setting up…</span>'}</div>
+        <div class="qr" id="qr"></div>
         <div class="code-box"><span class="label">Game code</span><span class="code">${esc(H.code)}</span><span class="url">${esc(joinURL())}</span></div>
       </div>
       ${fileWarn}
@@ -533,7 +606,7 @@ function renderLobby(){
       </div>
       ${joinOpen?`<div class="tv-row"><input id="jcode" maxlength="4" placeholder="CODE" style="font:700 22px var(--f-ui);width:6em;padding:10px;border-radius:12px;border:2px solid var(--line);background:rgba(0,0,0,.25);color:var(--ink);text-transform:uppercase"><button class="btn ghost" data-act="joincode">Join</button></div>`:''}
     </section></main>`;
-  if(hostReady) mountQR();
+  mountQR();
 }
 function mountQR(){
   const box=$('#qr'); if(!box) return;
@@ -593,8 +666,7 @@ function onHostClick(el){
   else if(act==='skip'){ if(H.phase==='play') drawAndPass(true); }
   else if(act==='newcode'){
     if(!confirmNew){ confirmNew=true; return renderHost(); }
-    confirmNew=false; conns.forEach(c=>{try{c.close();}catch(e){}}); conns.clear();
-    try{hostPeer.destroy();}catch(e){} H=newHostState(); qrNode=null; saveHost(); openHostPeer(); renderHost();
+    confirmNew=false; H=newHostState(); qrNode=null; saveHost(); openHostNet(); renderHost();
   }
   else if(act==='joinmode'){ joinOpen=!joinOpen; renderHost(); }
   else if(act==='joincode'){ const c=($('#jcode').value||'').trim().toUpperCase(); if(/^[A-Z]{4}$/.test(c)) location.search='?join='+c; }
@@ -615,8 +687,9 @@ function confetti(){
 /* =====================================================================
    PLAYER (a phone)
    ===================================================================== */
-const P={code:'',pid:'',name:'',color:'',editing:false,status:'idle',peer:null,conn:null,retryT:null,
-  state:null,me:null,work:null,sel:new Set(),sort:store.get('rp-sort','color'),toast:'',toastT:null,notice:'',noticeT:null,deadline:0,lastTurnId:0};
+const P={code:'',pid:'',name:'',color:'',editing:false,status:'idle',net:null,lastRx:0,upSince:0,helloT:null,
+  state:null,me:null,work:null,sel:new Set(),sort:store.get('rp-sort','color'),toast:'',toastT:null,notice:'',deadline:0,lastTurnId:0};
+const linkUp=()=>!!P.net&&P.net.up()>0 && Date.now()-P.lastRx<AWAY_MS-3000;
 
 function startPlayer(code){
   P.code=code;
@@ -626,36 +699,32 @@ function startPlayer(code){
   if(!P.name) P.editing=true; else connectPlayer();
   renderPlayer();
   setInterval(playerTick,250);
-  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible' && P.name && !P.editing && !(P.conn&&P.conn.open)){ clearTimeout(P.retryT); P.retryT=null; connectPlayer(); } });
+  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible' && P.net){ P.net.wake(Date.now()-P.lastRx>8000); sayHello(); } });
 }
 function connectPlayer(){
-  if(typeof Peer==='undefined') return peerLibMissing();
-  if(P.status!=='notfound') P.status='connecting';
-  renderPlayer();
-  try{ if(P.peer&&!P.peer.destroyed) P.peer.destroy(); }catch(e){}
-  const peer=new Peer({debug:0}); P.peer=peer;
-  peer.on('open',()=>{
-    const conn=peer.connect(PREFIX+P.code,{reliable:true,serialization:'json'}); P.conn=conn;
-    const t=setTimeout(()=>{ if(P.conn===conn&&!conn.open) retryConnect(1500); },12000);
-    conn.on('open',()=>{ clearTimeout(t); P.status='online'; sayHello(); renderPlayer(); });
-    conn.on('data',onPlayerData);
-    conn.on('close',()=>{ if(P.conn===conn) retryConnect(1500); });
-    conn.on('error',()=>{ if(P.conn===conn) retryConnect(1500); });
-  });
-  peer.on('error',err=>{ if(peer!==P.peer) return; if(err.type==='peer-unavailable'){ P.status='notfound'; retryConnect(4000); } else retryConnect(2500); });
+  if(!P.net){
+    P.net=makeNet([topicFor(P.code,'p/'+P.pid)],onPlayerData,()=>{
+      if(P.net.up()){ if(!P.upSince) P.upSince=Date.now(); sayHello(); } else P.upSince=0;
+      updateStatus();
+    });
+    P.helloT=setInterval(sayHello,PING_MS);
+  }
+  sayHello(); updateStatus(true);
 }
-function retryConnect(ms){
-  if(P.retryT) return;
-  if(P.status!=='notfound') P.status='connecting';
-  renderPlayer();
-  P.retryT=setTimeout(()=>{P.retryT=null;connectPlayer();},ms);
+function updateStatus(force){
+  let s;
+  if(linkUp()) s='online';
+  else if(!P.net||!P.net.up()) s='connecting';
+  else s=Date.now()-P.upSince>9000?'notfound':'connecting';
+  if(s!==P.status||force){ P.status=s; renderPlayer(); }
 }
-function sayHello(){ psend({t:'hello',pid:P.pid,name:P.name,color:P.color}); }
-function psend(m){ try{ if(P.conn&&P.conn.open) P.conn.send(m); }catch(e){} }
+function sayHello(){ if(P.name&&!P.editing) psend({t:'hello',name:P.name,color:P.color,need:Date.now()-P.lastRx>6000}); }
+function psend(m){ if(P.net) P.net.publish(topicFor(P.code,'host'),{...m,pid:P.pid}); }
 
-function onPlayerData(m){
+function onPlayerData(topic,m){
   if(!m||typeof m!=='object') return;
-  if(m.t==='notice'){ P.notice=m.msg; clearTimeout(P.noticeT); P.noticeT=setTimeout(sayHello,5000); return renderPlayer(); }
+  P.lastRx=Date.now();
+  if(m.t==='notice'){ P.notice=String(m.msg||''); updateStatus(); return renderPlayer(); }
   if(m.t==='err'){ return showToast(m.msg); }
   if(m.t!=='state') return;
   P.notice=''; P.state=m.pub; P.me=m.me;
@@ -668,10 +737,13 @@ function onPlayerData(m){
     }
   } else { P.work=null; P.sel.clear(); }
   P.deadline=pub.remain?Date.now()+pub.remain:0;
+  P.status='online';
   renderPlayer();
 }
 function showToast(msg){ P.toast=msg; clearTimeout(P.toastT); P.toastT=setTimeout(()=>{P.toast='';renderPlayer();},3800); renderPlayer(); }
+let lastStatusCheck=0;
 function playerTick(){
+  if(Date.now()-lastStatusCheck>1000){ lastStatusCheck=Date.now(); if(P.name&&!P.editing) updateStatus(); }
   const el=$('#clock'); if(!el) return;
   if(!P.deadline){ el.textContent=''; return; }
   const ms=Math.max(0,P.deadline-Date.now()); el.textContent=fmtClock(ms); el.classList.toggle('hurry',ms<10000);
@@ -707,7 +779,7 @@ function onPlayerClick(el){
   if(act==='join'){
     const name=cleanName(($('#nm')||{}).value); if(!name){ showToast('Type your name first.'); return; }
     P.name=name; P.nameDraft=null; store.set('rp-name',name); store.set('rp-color',P.color); P.editing=false;
-    if(P.conn&&P.conn.open){ sayHello(); renderPlayer(); } else connectPlayer();
+    connectPlayer();
   }
   else if(act==='rename'){ P.editing=true; renderPlayer(); }
   else if(act==='start') psend({t:'start'});
@@ -721,7 +793,7 @@ function onPlayerClick(el){
     if(!v.ok) return showToast(v.msg);
     psend({t:'end',turnId:W.turnId,table:W.table,rack:W.rack});
   }
-  else if(act==='retry'){ clearTimeout(P.retryT); P.retryT=null; connectPlayer(); }
+  else if(act==='retry'){ if(P.net) P.net.wake(); connectPlayer(); }
 }
 
 /* ---- player rendering ---- */
@@ -769,7 +841,7 @@ function phonePlayHTML(){
   const s=P.state, W=P.work, mine=!!W;
   const turnP=s.players.find(p=>p.pid===s.turnPid)||{name:'?'};
   const me=s.players.find(p=>p.pid===P.pid)||{score:0};
-  const top=`<header class="ph-top ph-pad${mine?' mine':''}"><span class="conn${P.conn&&P.conn.open?'':' off'}" title="Connection"></span>${av({name:P.name,color:P.color})}
+  const top=`<header class="ph-top ph-pad${mine?' mine':''}"><span class="conn${linkUp()?'':' off'}" title="Connection"></span>${av({name:P.name,color:P.color})}
     <div class="who"><b>${mine?'Your turn':esc(turnP.name)+' is playing'}</b><small>${me.score} pts · ${s.pool} in pool</small></div><span class="clock" id="clock"></span></header>`;
   let tableHTML;
   if(mine){
