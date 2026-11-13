@@ -41,12 +41,24 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible{outline:3px
 .tile.joker .n{background:conic-gradient(var(--t-red) 0 25%,var(--t-blue) 0 50%,var(--t-orange) 0 75%,var(--t-black) 0);-webkit-background-clip:text;background-clip:text;color:transparent}
 .tile.joker .s{font-size:.2em;letter-spacing:.06em;font-weight:700;color:var(--t-black)}
 .tile.fresh::after{content:"";position:absolute;top:calc(var(--w)*.09);right:calc(var(--w)*.1);width:calc(var(--w)*.16);height:calc(var(--w)*.16);border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px var(--tile-hi)}
+.tile.last{box-shadow:0 0 0 3px var(--pc,var(--gold)),0 calc(var(--w)*.07) 0 var(--tile-edge),0 0 calc(var(--w)*.45) var(--pc,var(--gold))}
 .tile[role=button]{cursor:pointer}
 .tile.sel{transform:translateY(-18%);box-shadow:0 0 0 3px var(--gold),0 calc(var(--w)*.2) calc(var(--w)*.3) rgba(0,0,0,.5)}
 .tile.letter{font-family:var(--f-display);font-weight:800}
 
 .set{display:flex;gap:4px;padding:6px;border-radius:12px;background:rgba(255,255,255,.035);border:2px solid transparent;align-items:center;position:relative}
-.set.bad{border-color:var(--bad);background:rgba(255,98,104,.12)}
+.set.touched{border-color:var(--pc,var(--gold));border-style:dashed}
+.set.bad{border-color:var(--bad);border-style:solid;background:rgba(255,98,104,.12)}
+.set.landed{animation:land .8s ease-out}
+@keyframes land{0%{background:rgba(245,185,53,.45);transform:scale(1.04)}100%{background:rgba(255,255,255,.035);transform:none}}
+.slot{width:var(--tw);height:calc(var(--tw)*1.36);flex:none;border-radius:calc(var(--tw)*.17);border:2px dashed var(--line)}
+.lastplay{display:flex;align-items:center;gap:10px;--avs:30px;font-size:clamp(14px,1.1vw,18px);color:var(--muted)}
+.lastplay .ring{width:22px;height:22px;border-radius:6px;background:var(--tile-hi);box-shadow:0 0 0 3px var(--pc);flex:none}
+.lastplay b{color:var(--ink)}
+.sndbtn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:rgba(255,255,255,.05);border-radius:999px;padding:8px 12px;font-size:14px;font-weight:500;flex:none}
+.sndbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sndbtn.wake{border-color:var(--gold);color:var(--gold)}
+.ph-top .sndbtn{padding:7px;border-radius:50%}
 .set .val{position:absolute;top:-9px;right:8px;font-size:11px;font-weight:700;background:var(--felt);color:var(--muted);padding:0 5px;border-radius:6px;font-variant-numeric:tabular-nums}
 
 .av{--av:#4DABF7;width:var(--avs,36px);height:var(--avs,36px);border-radius:50%;background:var(--av);color:#10131A;display:inline-grid;place-items:center;font-weight:800;font-size:calc(var(--avs,36px)*.46);flex:none;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18)}
@@ -168,13 +180,16 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible{outline:3px
 .ph-table.view .sets{--tw:26px;gap:8px}
 .drop{border:2px dashed var(--gold);background:rgba(245,185,53,.1);color:var(--gold);border-radius:10px;font-weight:700;display:grid;place-items:center}
 .set .drop{width:30px;align-self:stretch;font-size:20px;padding:0}
-.newset{padding:12px 16px;font-size:15px;min-height:52px}
+.drop:disabled{opacity:.3;border-color:var(--line);color:var(--muted);background:transparent;cursor:default}
+.newset{padding:0 12px;font-size:14px;min-height:calc(var(--tw)*1.36 + 16px);align-self:stretch}
 .meter{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
 .meter .track{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}
 .meter .track i{display:block;height:100%;background:var(--gold)}
 .meter.ok .track i{background:var(--good)}
 .meter b{color:var(--ink);font-variant-numeric:tabular-nums}
 .ph-hint{color:var(--muted);font-size:14px;margin:0}
+.ph-hint.fixed{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:1.45em}
+.ph-actions .btn{font-size:16px}
 .ph-rack{flex:none;max-height:46%;overflow:auto;border-top:1px solid var(--line);background:rgba(0,0,0,.22);padding-block:10px 14px;display:flex;flex-direction:column;gap:10px}
 .rack-head{display:flex;align-items:center;gap:10px}
 .rack-head .label{flex:1}
@@ -296,7 +311,7 @@ function tileHTML(id,o={}){
   const t=tileInfo(id), cls=t.joker?'joker':COLOR_NAMES[t.c];
   const face=t.joker?'<span class="n">★</span><span class="s">JOKER</span>':`<span class="n">${t.n}</span><span class="s">${SHAPES[t.c]}</span>`;
   const label=t.joker?'Joker':`${COLOR_NAMES[t.c]} ${t.n}`;
-  return `<div class="tile ${cls}${o.sel?' sel':''}${o.fresh?' fresh':''}"${o.tap?` data-tile="${id}" role="button" tabindex="0" aria-pressed="${!!o.sel}"`:''} aria-label="${label}">${face}</div>`;
+  return `<div class="tile ${cls}${o.sel?' sel':''}${o.fresh?' fresh':''}${o.last?' last':''}"${o.tap?` data-tile="${id}" role="button" tabindex="0" aria-pressed="${!!o.sel}"`:''} aria-label="${label}">${face}</div>`;
 }
 function logoHTML(){
   const letters=['R','U','M','M','Y'], cols=['red','blue','orange','black','red'];
@@ -307,6 +322,69 @@ let wakeLock=null;
 async function keepAwake(){ try{ if('wakeLock' in navigator && (!wakeLock||wakeLock.released)) wakeLock=await navigator.wakeLock.request('screen'); }catch(e){} }
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') keepAwake(); });
 document.addEventListener('pointerdown',keepAwake,{once:true});
+
+/* ---- Sound: every effect is synthesized with Web Audio, no files. ---- */
+const Sound=(()=>{
+  let ctx=null, noise=null, on=store.get('rp-sound',true);
+  function ac(create){
+    if(!ctx&&create){ const C=window.AudioContext||window.webkitAudioContext; if(!C) return null; try{ ctx=new C(); }catch(e){ return null; } }
+    if(ctx&&ctx.state==='suspended'&&create) ctx.resume().catch(()=>{});
+    return ctx;
+  }
+  function noiseBuf(c){ if(noise) return noise; noise=c.createBuffer(1,c.sampleRate*0.5,c.sampleRate); const d=noise.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; return noise; }
+  function env(c,t,peak,dur){ const g=c.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(peak,t+0.003); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); g.connect(c.destination); return g; }
+  function click(c,t,freq,dur,peak){ const s=c.createBufferSource(); s.buffer=noiseBuf(c); const f=c.createBiquadFilter(); f.type='bandpass'; f.frequency.value=freq; f.Q.value=2.2; s.connect(f); f.connect(env(c,t,peak,dur)); s.start(t,Math.random()*0.3); s.stop(t+dur+0.02); }
+  function tone(c,t,freq,dur,peak,type='sine',to){ const o=c.createOscillator(); o.type=type; o.frequency.setValueAtTime(freq,t); if(to) o.frequency.exponentialRampToValueAtTime(to,t+dur); o.connect(env(c,t,peak,dur)); o.start(t); o.stop(t+dur+0.02); }
+  const ready=()=>{ const c=ac(false); return on&&c&&c.state==='running'?c:null; };
+  return {
+    unlock(){ ac(true); },
+    get on(){ return on; },
+    get live(){ const c=ac(false); return !!c&&c.state==='running'; },
+    toggle(){ on=!on; store.set('rp-sound',on); ac(true); return on; },
+    tick(){ const c=ready(); if(!c) return; click(c,c.currentTime,4300,0.014,0.3); },
+    clack(n=1){ const c=ready(); if(!c) return; const k=Math.max(1,Math.min(n,6));
+      for(let i=0;i<k;i++){ const t=c.currentTime+i*0.06+Math.random()*0.012;
+        click(c,t,2300+Math.random()*700,0.035,0.55); tone(c,t,150+Math.random()*40,0.06,0.22,'sine',90); } },
+    slide(){ const c=ready(); if(!c) return; const t=c.currentTime, s=c.createBufferSource(); s.buffer=noiseBuf(c);
+      const f=c.createBiquadFilter(); f.type='bandpass'; f.Q.value=1.2; f.frequency.setValueAtTime(700,t); f.frequency.exponentialRampToValueAtTime(2600,t+0.2);
+      s.connect(f); f.connect(env(c,t,0.18,0.24)); s.start(t); s.stop(t+0.3); click(c,t+0.22,2600,0.03,0.4); },
+    ding(){ const c=ready(); if(!c) return; const t=c.currentTime; tone(c,t,880,0.35,0.12); tone(c,t+0.09,1320,0.45,0.09); },
+    turn(){ const c=ready(); if(!c) return; const t=c.currentTime; tone(c,t,587,0.22,0.14,'triangle'); tone(c,t+0.13,880,0.4,0.14,'triangle'); },
+    buzz(){ const c=ready(); if(!c) return; const t=c.currentTime; tone(c,t,140,0.16,0.07,'square',110); },
+    hurry(){ const c=ready(); if(!c) return; click(c,c.currentTime,1800,0.03,0.35); },
+    fanfare(){ const c=ready(); if(!c) return; const t=c.currentTime; [523,659,784,1047].forEach((f,i)=>tone(c,t+i*0.11,f,i===3?0.7:0.2,0.13,'triangle')); }
+  };
+})();
+['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,()=>{ Sound.unlock(); setTimeout(refreshSoundBtn,60); },true));
+const SPEAKER_ON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+const SPEAKER_OFF='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>';
+function soundBtnHTML(compact){
+  const wake=Sound.on&&!Sound.live;
+  const label=!Sound.on?'Sound off':wake?'Click for sound':'Sound on';
+  return `<button class="sndbtn${wake?' wake':''}" data-act="sound" aria-label="${label}" title="${label}">${Sound.on?SPEAKER_ON:SPEAKER_OFF}${compact?'':`<span>${label}</span>`}</button>`;
+}
+function refreshSoundBtn(){ document.querySelectorAll('.sndbtn').forEach(b=>{ const html=soundBtnHTML(!b.querySelector('span')); if(b.outerHTML!==html) b.outerHTML=html; }); }
+function onSoundClick(el){ if(el.classList.contains('wake')) Sound.unlock(); else { if(Sound.toggle()) Sound.tick(); } setTimeout(refreshSoundBtn,80); }
+
+/* ---- Last-play highlight: tiles the last player put down, and the sets they changed ---- */
+function describeLastPlay(oldTable,newTable,p){
+  const was=new Set(oldTable.flat()), left=new Map();
+  oldTable.filter(s=>s.length).forEach(s=>{const k=keyOf(s);left.set(k,(left.get(k)||0)+1);});
+  const changed=[];
+  newTable.filter(s=>s.length).forEach(s=>{const k=keyOf(s); if(left.get(k)>0) left.set(k,left.get(k)-1); else changed.push(k);});
+  const added=newTable.flat().filter(id=>!was.has(id));
+  return {pid:p.pid,name:p.name,color:p.color,added,changed};
+}
+function lastPlayMarks(lp){
+  if(!lp) return {tile:()=>false,set:()=>false,style:''};
+  const a=new Set(lp.added), c=new Set(lp.changed);
+  return {tile:id=>a.has(id), set:ids=>c.has(keyOf(ids)), style:`--pc:${safeColor(lp.color)}`};
+}
+function lastPlayHTML(lp){
+  if(!lp) return '';
+  const sets=lp.changed.length, n=lp.added.length;
+  return `<div class="lastplay" style="--pc:${safeColor(lp.color)}"><span class="ring"></span><span>Last play: <b>${esc(lp.name)}</b> put down ${n} tile${n===1?'':'s'}${sets>1?` across ${sets} sets`:''}</span></div>`;
+}
 /* =====================================================================
    Relay transport: a tiny MQTT 3.1.1 client over WebSocket, fanned out
    to several free public brokers at once. Every message goes to every
@@ -461,7 +539,10 @@ function onHostMsg(topic,d){
     case 'start': if(boss&&H.phase!=='play') startRound(); break;
     case 'lobby': if(boss&&H.phase==='over') toLobby(); break;
     case 'work':
-      if(isCurrent(pid,d.turnId)&&conserves(d.table,d.rack)){ H.work={table:d.table,rack:d.rack}; renderHost(); scheduleBroadcast(); }
+      if(isCurrent(pid,d.turnId)&&conserves(d.table,d.rack)){
+        const before=(H.work||H.start).table.flat().length, after=d.table.flat().length;
+        if(after>before) Sound.clack(after-before); else Sound.tick();
+        H.work={table:d.table,rack:d.rack}; renderHost(); scheduleBroadcast(); }
       break;
     case 'end':
       if(!isCurrent(pid,d.turnId)) break;
@@ -476,7 +557,7 @@ function scheduleBroadcast(){ if(bcastTimer) return; bcastTimer=setTimeout(()=>{
 function publicState(){
   return {phase:H.phase,code:H.code,hostPid:hostPid(),round:H.round,timer:H.timer,pool:H.pool.length,msg:H.msg,result:H.result,
     players:H.players.map(p=>({pid:p.pid,name:p.name,color:p.color,count:p.rack.length,score:p.score,online:p.online,melded:p.melded})),
-    table:H.work?H.work.table:H.table, freshBase:H.phase==='play'&&H.start?H.start.table.flat():[],
+    table:H.work?H.work.table:H.table, freshBase:H.phase==='play'&&H.start?H.start.table.flat():[], lastPlay:H.phase==='play'?H.lastPlay||null:null,
     turnPid:H.phase==='play'?cur().pid:null, turnId:H.turnId, remain:H.phase==='play'&&H.deadline?Math.max(0,H.deadline-Date.now()):0};
 }
 const stateFor=(p,pub)=>({t:'state',pub,me:{pid:p.pid,rack:p.rack,melded:p.melded},turnStart:(pub.turnPid===p.pid)?H.start:null});
@@ -491,7 +572,7 @@ function startRound(){
   H.players=H.players.filter(p=>p.online);
   H.pool=shuffle([...Array(106).keys()]);
   H.players.forEach(p=>{p.rack=H.pool.splice(0,RACK_SIZE); p.melded=false;});
-  H.table=[]; H.passes=0; H.result=null; H.round++;
+  H.table=[]; H.passes=0; H.result=null; H.lastPlay=null; H.round++;
   H.starter=H.round===1?Math.floor(Math.random()*H.players.length):(H.starter+1)%H.players.length;
   H.turn=H.starter; H.phase='play';
   H.msg=`Round ${H.round}. ${cur().name} goes first.`;
@@ -513,14 +594,18 @@ function nextTurn(){
 function commitTurn(table,rack,n){
   const p=cur();
   p.rack=[...rack]; p.melded=true; H.passes=0; H.work=null;
-  H.table=table.filter(s=>s.length).map(s=>{const a=analyze(s);return a.valid?a.order:s;});
+  const newTable=table.filter(s=>s.length).map(s=>{const a=analyze(s);return a.valid?a.order:s;});
+  H.lastPlay=describeLastPlay(H.start.table,newTable,p);
+  H.table=newTable;
   H.msg=`${p.name} played ${n} tile${n>1?'s':''}.`;
   if(!p.rack.length) return endRound(H.turn);
+  Sound.ding();
   nextTurn();
 }
 function drawAndPass(timedOut){
   const p=cur(); H.work=null; H.table=clone(H.start.table); p.rack=[...H.start.rack];
   const pre=timedOut?`Time's up. `:'';
+  Sound.slide();
   if(H.pool.length){ p.rack.push(H.pool.pop()); H.passes=0; H.msg=`${pre}${p.name} drew a tile.`; }
   else { H.passes++; H.msg=`${pre}${p.name} passed. The pool is empty.`; if(H.passes>=H.players.length) return endRound(null); }
   nextTurn();
@@ -537,7 +622,7 @@ function endRound(wi){
   const rows=H.players.map((p,i)=>({pid:p.pid,left:sortTiles(p.rack,'color'),delta:i===wi?others-vals[i]:-vals[i]}));
   rows.forEach((r,i)=>H.players[i].score+=r.delta);
   H.result={winnerPid:H.players[wi].pid,emptied,rows};
-  H.phase='over'; H.work=null; H.deadline=0;
+  H.phase='over'; H.work=null; H.deadline=0; Sound.fanfare();
   H.msg=emptied?`${H.players[wi].name} went out!`:`The pool ran dry. ${H.players[wi].name} has the lowest hand.`;
   broadcast();
 }
@@ -559,6 +644,7 @@ function updateHostClock(){
   if(!H.deadline){ el.textContent=''; if(bar) bar.hidden=true; return; }
   const ms=Math.max(0,H.deadline-Date.now());
   el.textContent=fmtClock(ms); el.classList.toggle('hurry',ms<10000);
+  const secs=Math.ceil(ms/1000); if(secs>0&&secs<=5&&secs!==updateHostClock.last){ updateHostClock.last=secs; Sound.hurry(); }
   if(bar){ bar.hidden=false; const total=cur().online?H.timer*1000:30000; bar.firstElementChild.style.width=Math.min(100,ms/Math.max(1,total)*100)+'%'; }
 }
 
@@ -603,6 +689,7 @@ function renderLobby(){
       <div class="tv-row">
         <button class="linkbtn" data-act="newcode">${confirmNew?'Tap again for a new code (players will need to rescan)':'New game code'}</button>
         <button class="linkbtn" data-act="joinmode">Joining from this device? Enter a code</button>
+        ${soundBtnHTML(false)}
       </div>
       ${joinOpen?`<div class="tv-row"><input id="jcode" maxlength="4" placeholder="CODE" style="font:700 22px var(--f-ui);width:6em;padding:10px;border-radius:12px;border:2px solid var(--line);background:rgba(0,0,0,.25);color:var(--ink);text-transform:uppercase"><button class="btn ghost" data-act="joincode">Join</button></div>`:''}
     </section></main>`;
@@ -622,14 +709,16 @@ function renderPlay(){
   const p=cur(), table=H.work?H.work.table:H.table, base=new Set(H.start?H.start.table.flat():[]);
   const roster=H.players.map(x=>`<li class="rp${x===p?' now':''}">${av(x)}<div><div class="nm">${esc(x.name)}</div>
       <div class="meta"><b>${x.rack.length}</b> tiles · ${x.score} pts${x.melded?'':' · <span class="badge">needs 30</span>'}${x.online?'':' · away'}</div></div></li>`).join('');
+  const lp=lastPlayMarks(H.lastPlay);
   const sets=table.filter(s=>s.length).map(s=>{const a=analyze(s); const ids=a.valid?a.order:s;
-      return `<div class="set${a.valid?'':' bad'}">${ids.map(id=>tileHTML(id,{fresh:!base.has(id)})).join('')}</div>`;}).join('');
+      return `<div class="set${a.valid?'':' bad'}${lp.set(ids)?' touched':''}" style="${lp.style}">${ids.map(id=>tileHTML(id,{fresh:!base.has(id),last:lp.tile(id)})).join('')}</div>`;}).join('');
   app.innerHTML=`<main class="tv play">
-    <header class="tv-top">${logoHTML()}<ol class="roster">${roster}</ol><div class="pool"><span class="label">Pool</span><b>${H.pool.length}</b></div></header>
+    <header class="tv-top">${logoHTML()}${soundBtnHTML(false)}<ol class="roster">${roster}</ol><div class="pool"><span class="label">Pool</span><b>${H.pool.length}</b></div></header>
     <section class="felt"><div class="table" id="table">${sets||`<div class="empty-table"><b>The table is empty</b>A first meld needs ${MELD_MIN} points from your own tiles.</div>`}</div></section>
     <footer class="tv-bottom">
       <div class="turn">${av(p)}<span><b>${esc(p.name)}</b>${p.online?' is playing':' is away'}</span><span class="clock" id="clock"></span></div>
       <div class="msg">${esc(H.msg)}</div>
+      ${lastPlayHTML(H.lastPlay)}
       ${p.online?'':'<button class="btn ghost" data-act="skip">Skip turn</button>'}
       <div id="hstatus">${statusHTML()}</div>
       <div class="bar" id="tbar" hidden><i></i></div>
@@ -725,18 +814,24 @@ function onPlayerData(topic,m){
   if(!m||typeof m!=='object') return;
   P.lastRx=Date.now();
   if(m.t==='notice'){ P.notice=String(m.msg||''); updateStatus(); return renderPlayer(); }
-  if(m.t==='err'){ return showToast(m.msg); }
-  if(m.t!=='state') return;
-  P.notice=''; P.state=m.pub; P.me=m.me;
+  if(m.t==='err'){ Sound.buzz(); return showToast(m.msg); }
+  if(m.t!=='state'||!m.pub) return;
   const pub=m.pub, mine=pub.phase==='play'&&pub.turnPid===P.pid;
+  P.deadline=pub.remain?Date.now()+pub.remain:0;
+  // Heartbeats repeat the same state every few seconds; skip the redraw so tiles never jump under a finger.
+  const sig=JSON.stringify([pub.phase,pub.turnId,pub.turnPid,mine?null:pub.table,pub.players,pub.msg,pub.lastPlay,pub.pool,pub.result,pub.timer,pub.hostPid,pub.round,m.me]);
+  if(sig===P.sig&&P.status==='online'&&!P.notice){ playerTick(); return; }
+  P.sig=sig;
+  const wasPhase=P.state&&P.state.phase;
+  P.notice=''; P.state=pub; P.me=m.me;
   if(mine){
     if((!P.work||P.work.turnId!==pub.turnId) && m.turnStart){
-      P.work={turnId:pub.turnId,table:clone(m.turnStart.table),rack:[...m.turnStart.rack],startTable:clone(m.turnStart.table),wasTable:new Set(m.turnStart.table.flat()),fromRack:new Set(m.turnStart.rack)};
+      P.work={turnId:pub.turnId,table:clone(m.turnStart.table),rack:[...m.turnStart.rack],startTable:clone(m.turnStart.table),wasTable:new Set(m.turnStart.table.flat()),fromRack:new Set(m.turnStart.rack),order:sortTiles(m.turnStart.rack,P.sort)};
       P.sel.clear();
-      if(P.lastTurnId!==pub.turnId){ P.lastTurnId=pub.turnId; try{navigator.vibrate&&navigator.vibrate([120,60,120]);}catch(e){} }
+      if(P.lastTurnId!==pub.turnId){ P.lastTurnId=pub.turnId; Sound.turn(); try{navigator.vibrate&&navigator.vibrate([120,60,120]);}catch(e){} }
     }
   } else { P.work=null; P.sel.clear(); }
-  P.deadline=pub.remain?Date.now()+pub.remain:0;
+  if(pub.phase==='over'&&wasPhase==='play'&&pub.result&&pub.result.winnerPid===P.pid) Sound.fanfare();
   P.status='online';
   renderPlayer();
 }
@@ -758,22 +853,28 @@ function moveSelection(target){
     if(sel.some(id=>W.wasTable.has(id))) showToast('Tiles from the table have to stay on the table.');
     W.table=W.table.map(s=>s.filter(id=>!back.includes(id))).filter(s=>s.length);
     W.rack.push(...back);
+    if(back.length) Sound.slide();
+    P.landed=null;
   } else {
     const dest=target==='new'?[]:W.table[target]; if(!dest) return;
+    const moving=sel.filter(id=>!dest.includes(id));
     W.table=W.table.map(s=>s===dest?s:s.filter(id=>!P.sel.has(id)));
     W.rack=W.rack.filter(id=>!P.sel.has(id));
-    const merged=[...dest,...sel.filter(id=>!dest.includes(id))];
+    const merged=[...dest,...moving];
     const a=analyze(merged), ordered=a.valid?a.order:sortTiles(merged,'color');
     if(target==='new') W.table.push(ordered); else W.table[W.table.indexOf(dest)]=ordered;
     W.table=W.table.filter(s=>s.length);
+    P.landed={key:keyOf(ordered),until:Date.now()+900};
+    Sound.clack(moving.length);
   }
   P.sel.clear(); sendWork(); renderPlayer();
+  const el=$('.set.landed'); if(el&&el.scrollIntoView) el.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 function onPlayerClick(el){
   if(el.dataset.color){ P.color=el.dataset.color; const i=$('#nm'); if(i) P.nameDraft=i.value; return renderPlayer(); }
   if(el.dataset.timer!=null) return psend({t:'timer',v:+el.dataset.timer});
-  if(el.dataset.sort){ P.sort=el.dataset.sort; store.set('rp-sort',P.sort); return renderPlayer(); }
-  if(el.dataset.tile!=null){ if(!P.work) return; const id=+el.dataset.tile; P.sel.has(id)?P.sel.delete(id):P.sel.add(id); return renderPlayer(); }
+  if(el.dataset.sort){ P.sort=el.dataset.sort; store.set('rp-sort',P.sort); if(P.work) P.work.order=sortTiles([...P.work.fromRack],P.sort); return renderPlayer(); }
+  if(el.dataset.tile!=null){ if(!P.work) return; const id=+el.dataset.tile; P.sel.has(id)?P.sel.delete(id):P.sel.add(id); Sound.tick(); return renderPlayer(); }
   if(el.dataset.drop!=null){ const d=el.dataset.drop; return moveSelection(d==='new'||d==='rack'?d:+d); }
   const act=el.dataset.act;
   if(act==='join'){
@@ -785,12 +886,14 @@ function onPlayerClick(el){
   else if(act==='start') psend({t:'start'});
   else if(act==='lobby') psend({t:'lobby'});
   else if(act==='clear'){ P.sel.clear(); renderPlayer(); }
-  else if(act==='reset'){ const W=P.work; if(!W) return; W.table=clone(W.startTable); W.rack=[...W.fromRack]; P.sel.clear(); sendWork(); renderPlayer(); }
-  else if(act==='draw'){ if(P.work) psend({t:'draw',turnId:P.work.turnId}); }
+  else if(act==='reset'){ const W=P.work; if(!W) return; W.table=clone(W.startTable); W.rack=[...W.fromRack]; P.sel.clear(); P.landed=null; Sound.slide(); sendWork(); renderPlayer(); }
+  else if(act==='putback') moveSelection('rack');
+  else if(act==='draw'){ if(P.work){ Sound.slide(); psend({t:'draw',turnId:P.work.turnId}); } }
   else if(act==='done'){
     const W=P.work; if(!W) return;
     const v=validateEnd(W.startTable,[...W.fromRack],W.table,W.rack,P.me.melded);
-    if(!v.ok) return showToast(v.msg);
+    if(!v.ok){ Sound.buzz(); return showToast(v.msg); }
+    Sound.ding();
     psend({t:'end',turnId:W.turnId,table:W.table,rack:W.rack});
   }
   else if(act==='retry'){ if(P.net) P.net.wake(); connectPlayer(); }
@@ -842,36 +945,45 @@ function phonePlayHTML(){
   const turnP=s.players.find(p=>p.pid===s.turnPid)||{name:'?'};
   const me=s.players.find(p=>p.pid===P.pid)||{score:0};
   const top=`<header class="ph-top ph-pad${mine?' mine':''}"><span class="conn${linkUp()?'':' off'}" title="Connection"></span>${av({name:P.name,color:P.color})}
-    <div class="who"><b>${mine?'Your turn':esc(turnP.name)+' is playing'}</b><small>${me.score} pts · ${s.pool} in pool</small></div><span class="clock" id="clock"></span></header>`;
+    <div class="who"><b>${mine?'Your turn':esc(turnP.name)+' is playing'}</b><small>${me.score} pts · ${s.pool} in pool</small></div>${soundBtnHTML(true)}<span class="clock" id="clock"></span></header>`;
+  const lp=lastPlayMarks(s.lastPlay), landedKey=P.landed&&Date.now()<P.landed.until?P.landed.key:null;
+  const lpLine=s.lastPlay?lastPlayHTML(s.lastPlay):'';
   let tableHTML;
   if(mine){
+    // Layout stays fixed while you play: every set always has its + slot and the New set box is always
+    // there (disabled until you pick tiles), and the hint is one fixed line.
     const any=P.sel.size>0;
     const sets=W.table.map((st,i)=>{const a=analyze(st); const ids=a.valid?a.order:st;
-      return `<div class="set${a.valid?'':' bad'}">${ids.map(id=>tileHTML(id,{tap:true,sel:P.sel.has(id),fresh:W.fromRack.has(id)})).join('')}${any?`<button class="drop" data-drop="${i}" aria-label="Add to this set">+</button>`:''}</div>`;}).join('');
+      return `<div class="set${a.valid?'':' bad'}${lp.set(ids)?' touched':''}${landedKey===keyOf(ids)?' landed':''}" style="${lp.style}">${ids.map(id=>tileHTML(id,{tap:true,sel:P.sel.has(id),fresh:W.fromRack.has(id),last:lp.tile(id)})).join('')}<button class="drop" data-drop="${i}" aria-label="Add to this set" ${any?'':'disabled'}>+</button></div>`;}).join('');
     let meter='';
     if(!P.me.melded){ const pts=meldPoints(W.startTable,W.table); meter=`<div class="meter${pts>=MELD_MIN?' ok':''}"><span>First meld</span><div class="track"><i style="width:${Math.min(100,pts/MELD_MIN*100)}%"></i></div><b>${pts}/${MELD_MIN}</b></div>`; }
-    const hint=any?`<p class="ph-hint">${P.sel.size} selected. Tap <b>+</b> on a set, or make a new set.</p>`:`<p class="ph-hint">${W.table.length?'Tap tiles to pick them up, from your rack or the table.':'Tap tiles in your rack to pick them up.'}</p>`;
-    tableHTML=`<section class="ph-table ph-pad">${meter}${hint}<div class="sets">${sets}</div>
-      ${any?`<button class="drop newset" data-drop="new">New set with ${P.sel.size} tile${P.sel.size>1?'s':''}</button>`:''}</section>`;
+    const hint=any?`${P.sel.size} picked up. Tap + on a set, or New set.`:(W.table.length?'Tap tiles to pick them up, from your rack or the table.':'Tap tiles in your rack to pick them up.');
+    tableHTML=`<section class="ph-table ph-pad">${meter}${lpLine}<p class="ph-hint fixed">${hint}</p>
+      <div class="sets">${sets}<button class="drop newset" data-drop="new" ${any?'':'disabled'}>+ New set</button></div></section>`;
   } else {
     const base=new Set(s.freshBase||[]);
-    const sets=s.table.filter(x=>x.length).map(st=>{const a=analyze(st);return `<div class="set${a.valid?'':' bad'}">${(a.valid?a.order:st).map(id=>tileHTML(id,{fresh:!base.has(id)})).join('')}</div>`;}).join('');
-    tableHTML=`<section class="ph-table view ph-pad"><span class="label">Table</span>${sets?`<div class="sets">${sets}</div>`:'<p class="ph-hint">Nothing on the table yet.</p>'}
+    const sets=s.table.filter(x=>x.length).map(st=>{const a=analyze(st); const ids=a.valid?a.order:st;
+      return `<div class="set${a.valid?'':' bad'}${lp.set(ids)?' touched':''}" style="${lp.style}">${ids.map(id=>tileHTML(id,{fresh:!base.has(id),last:lp.tile(id)})).join('')}</div>`;}).join('');
+    tableHTML=`<section class="ph-table view ph-pad"><span class="label">Table</span>${lpLine}${sets?`<div class="sets">${sets}</div>`:'<p class="ph-hint">Nothing on the table yet.</p>'}
       ${!P.me.melded?`<p class="ph-hint">Your first meld needs ${MELD_MIN} points from your own tiles.</p>`:''}</section>`;
   }
-  const rackIds=sortTiles(mine?W.rack:P.me.rack,P.sort);
-  const backable=mine&&[...P.sel].some(id=>W.fromRack.has(id)&&!W.rack.includes(id));
-  const rack=`<section class="ph-rack ph-pad"><div class="rack-head"><span class="label">Your tiles · ${rackIds.length}</span>
+  // On your turn the rack keeps each tile in its spot; a tile you've played leaves an empty slot.
+  const rackCount=mine?W.rack.length:P.me.rack.length;
+  const rackTiles=mine
+    ? W.order.map(id=>W.rack.includes(id)?tileHTML(id,{tap:true,sel:P.sel.has(id)}):'<span class="slot" aria-hidden="true"></span>').join('')
+    : sortTiles(P.me.rack,P.sort).map(id=>tileHTML(id)).join('');
+  const rack=`<section class="ph-rack ph-pad"><div class="rack-head"><span class="label">Your tiles · ${rackCount}</span>
       <div class="seg"><button data-sort="color" aria-pressed="${P.sort==='color'}">Color</button><button data-sort="number" aria-pressed="${P.sort==='number'}">Number</button></div></div>
-      ${backable?'<button class="drop rack-drop" data-drop="rack">Put back in my rack</button>':''}
-      <div class="rack">${rackIds.map(id=>tileHTML(id,{tap:mine,sel:P.sel.has(id)})).join('')}</div></section>`;
+      <div class="rack">${rackTiles}</div></section>`;
   let actions='';
   if(mine){
     const played=W.table.flat().some(id=>W.fromRack.has(id));
     const shape=t=>t.map(keyOf).sort().join('|');
     const changed=played||shape(W.table)!==shape(W.startTable);
+    const backable=[...P.sel].some(id=>W.fromRack.has(id)&&!W.rack.includes(id));
     actions=`<footer class="ph-actions ph-pad">
       ${P.sel.size?'<button class="btn ghost" data-act="clear">Deselect</button>':`<button class="btn ghost" data-act="reset" ${changed?'':'disabled'}>Reset</button>`}
+      ${backable?'<button class="btn ghost" data-act="putback">Put back</button>':''}
       ${played?'<button class="btn go" data-act="done">Done</button>':`<button class="btn" data-act="draw">${s.pool?'Draw a tile':'Pass'}</button>`}</footer>`;
   }
   return `<main class="phone">${top}${tableHTML}${rack}${actions}</main>`;
@@ -906,6 +1018,7 @@ app.addEventListener('click',e=>{
   const el=e.target.closest('[data-act],[data-tile],[data-drop],[data-color],[data-timer],[data-sort]'); if(!el||el.disabled) return;
   if(el.dataset.act==='gojoin'){ const c=($('#jc').value||'').trim().toUpperCase(); if(/^[A-Z]{4}$/.test(c)) location.search='?join='+c; return; }
   if(el.dataset.act==='gohost'){ MODE='host'; return startHost(); }
+  if(el.dataset.act==='sound') return onSoundClick(el);
   if(MODE==='host') onHostClick(el); else onPlayerClick(el);
 });
 app.addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-tile]')){ e.preventDefault(); e.target.click(); }
